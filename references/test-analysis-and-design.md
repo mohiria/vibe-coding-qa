@@ -1,4 +1,4 @@
-# Test Analysis and Design
+﻿# Test Analysis and Design
 
 Use this reference before generating or reviewing any test script. Its purpose is to decide what to test, why to test it, which layer should test it, and what assertions prove correctness.
 
