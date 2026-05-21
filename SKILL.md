@@ -46,7 +46,6 @@ Load only the reference needed for the current task.
 | Decide what old tests to run after a change | `references/regression-testing.md` |
 | Verify a real running service or app before merge/release | `references/runtime-qa-validation.md` |
 | Analyze local or CI test failures | `references/failure-analysis.md` |
-| Explain how this skill uses the local reference projects | `references/source-mapping.md` |
 
 ## Mandatory Rules
 
