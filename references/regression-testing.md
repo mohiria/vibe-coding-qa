@@ -82,6 +82,19 @@ Select the lowest effective tests that prove old behavior still works:
 
 Do not run a huge suite as a substitute for impact analysis when a targeted suite is available. Do not skip directly affected tests only because a broad suite passed elsewhere.
 
+## Requirement Change Handling
+
+When the change is a requirement change, update the test set deliberately:
+
+| Requirement change | Test response |
+| --- | --- |
+| New behavior added | Add new test points and tests at the lowest effective layer. |
+| Existing behavior changed | Modify old tests only when the Spec intentionally changes the expected result; state whether the old behavior remains supported. |
+| Behavior removed | Delete or retire tests only when the Spec explicitly removes the behavior or equal or better coverage remains elsewhere. |
+| Behavior split by role, flag, tenant, or state | Keep old-path tests where the old path remains supported, and add tests for the new variants. |
+
+For requirement-driven test additions, modifications, or deletions, record the requirement source, the affected tests, the reason for the change, and the remaining coverage for old behavior that is still supported. Do not delete tests because implementation changed, setup is inconvenient, or the test is failing.
+
 ## Changed Tests
 
 Changing a test increases regression responsibility.
@@ -148,6 +161,7 @@ If a selected regression test cannot run, report the exact blocker and resume on
 A regression statement must include:
 
 - Changed behavior and impacted existing behavior.
+- Requirement-driven test additions, modifications, and deletions.
 - Risk level and why.
 - Tests selected and why.
 - Tests run and results.
@@ -163,6 +177,8 @@ Before accepting regression coverage, verify:
 - The code diff and test diff were inspected.
 - Impacted callers, API contracts, data models, permissions, and user flows were considered.
 - Risk level is justified.
+- Requirement changes are mapped to added, modified, kept, and deleted tests.
+- Deleted tests have an explicit requirement or replacement-coverage justification.
 - Newly added and modified tests were executed.
 - Directly affected existing tests were executed.
 - Historical defect tests were included when relevant.

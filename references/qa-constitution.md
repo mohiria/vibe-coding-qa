@@ -132,6 +132,8 @@ If an existing test is modified, state the reason:
 
 Changing a test is never enough by itself. The agent must also confirm the updated test still has a clear purpose, meaningful assertions, and traceability.
 
+Deleting or retiring a test is allowed only when the Spec explicitly removes or replaces the behavior, or when equal or better coverage remains elsewhere. The agent must document the requirement source and remaining coverage.
+
 ## Regression Rule
 
 Regression testing asks whether this change broke existing behavior.

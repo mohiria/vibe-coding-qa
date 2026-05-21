@@ -19,7 +19,7 @@ Follow this order by default:
 6. Generate or review API/integration tests for service contracts, authorization, data consistency, and integration behavior.
 7. Generate or review E2E scenarios for critical user flows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
 8. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
-9. Analyze regression impact for any changed code or changed tests.
+9. Analyze regression impact for any changed requirements, code, or tests.
 10. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
 11. If tests fail, classify the failure before changing code or tests.
 
