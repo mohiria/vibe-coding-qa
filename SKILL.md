@@ -67,7 +67,7 @@ Use the templates only when they help the task:
 - `templates/lightweight-test-design.md` for test design before script generation.
 - `templates/regression-impact-analysis.md` for change impact and regression scope.
 - `templates/bug-report.md` for defects found during testing, review, or validation.
-- `templates/qa-test-report.md` for runtime QA validation evidence and conclusion.
+- `templates/qa-test-report.md` for the final QA report, including runtime QA validation evidence when required.
 
 When a template file is needed, copy or adapt its structure into the project artifact requested by the user. Do not create unnecessary documents.
 
