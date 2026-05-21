@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vibe Coding QA"
+  short_description: "TDD-driven QA workflow for AI-generated code."
+  default_prompt: "Use $vibe-coding-qa to design and execute a lightweight QA plan for this code change."
