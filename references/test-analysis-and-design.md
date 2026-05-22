@@ -202,7 +202,7 @@ For E2E, record scenario-first design:
 - Cleanup strategy.
 - Evidence to capture on failure.
 
-For E2E, `Coverage artifact` may remain empty during scenario design. After a Playwright test exists, update it with the project-root relative path. Scenario-first design is valid even before the Playwright test file exists.
+For E2E, `Coverage artifact` may remain empty during scenario design. After a browser E2E test exists, update it with the project-root relative path. Scenario-first design is valid even before the E2E test file exists.
 
 ## Data Model and Test Data Design
 

@@ -2,6 +2,8 @@
 
 Use this reference after lightweight test design identifies unit-level or component-level test points. Unit tests are the first executable control for AI-generated code because they are fast, local, and precise.
 
+Use the project's existing test framework and runner first. If no convention exists, consult `references/test-tooling.md`.
+
 ## Goal
 
 Unit testing verifies one behavior boundary at a time:

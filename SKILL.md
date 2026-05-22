@@ -42,9 +42,10 @@ Load only the reference needed for the current task.
 | --- | --- |
 | Establish mandatory rules, quality gates, or anti-fake-test policy | `references/qa-constitution.md` |
 | Extract test points or decide test layers | `references/test-analysis-and-design.md` |
+| Choose test framework or runner when project convention is unclear | `references/test-tooling.md` |
 | Generate or review unit tests | `references/unit-testing.md` |
 | Generate or review API/integration tests | `references/api-and-integration-testing.md` |
-| Generate or review E2E scenarios or Playwright tests | `references/e2e-testing.md` |
+| Generate or review E2E scenarios or browser E2E tests | `references/e2e-testing.md` |
 | Decide what old tests to run after a change | `references/regression-testing.md` |
 | Verify a real running service or app before merge/release | `references/runtime-qa-validation.md` |
 | Analyze local or CI test failures | `references/failure-analysis.md` |

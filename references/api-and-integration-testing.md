@@ -2,6 +2,8 @@
 
 Use this reference after lightweight test design identifies API-level or integration-level test points. API and integration tests verify observable service behavior across boundaries that unit tests cannot prove reliably.
 
+Use the project's existing test framework, runner, fixtures, and integration bootstrap first. If no convention exists, consult `references/test-tooling.md`.
+
 ## Goal
 
 API and integration testing verifies connected behavior:

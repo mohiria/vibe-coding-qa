@@ -2,6 +2,8 @@
 
 Use this reference after lightweight test design identifies critical user journeys that cannot be proven sufficiently by unit or API/integration tests. E2E tests provide confidence that the product works across UI, routing, service, auth, and data boundaries.
 
+Use the project's existing E2E runner, fixtures, selectors, and CI convention first. If no convention exists, consult `references/test-tooling.md`.
+
 ## Goal
 
 E2E testing verifies user-visible behavior across the running system:
@@ -48,7 +50,7 @@ If an account, permission, seed, plugin, browser, service, or environment is mis
 
 ## Scenario-First Workflow
 
-Use this order before writing Playwright or other E2E code:
+Use this order before writing browser E2E code:
 
 1. Select one in-scope critical scenario from lightweight test design.
 2. Define persona or role.
