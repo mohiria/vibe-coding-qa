@@ -6,7 +6,7 @@ This document defines the mandatory QA rules for Vibe Coding work. Other QA refe
 
 Testing in Vibe Coding is not a final manual check after AI writes code. Testing is the control system for AI-generated software:
 
-1. Spec defines the expected behavior.
+1. Active requirement authority defines the expected behavior.
 2. TDD constrains implementation.
 3. Layered tests provide repeatable verification.
 4. Regression protects existing behavior.
@@ -66,6 +66,36 @@ Do not force strict TDD for:
 
 For E2E work, use scenario-first design instead of mandatory Red-Green. Define the user role, preconditions, operation path, assertions, data setup, and cleanup before implementation or script generation.
 
+Before changing production code, the agent must confirm one of the following:
+
+- A valid Red test was created or selected and failed for the expected behavior reason.
+- An existing failing test already proves the required behavior gap.
+- Strict TDD does not apply, with the reason, alternative validation, and residual risk recorded.
+- A prerequisite blocker prevents the Red test, with the exact missing dependency, account, service, permission, environment variable, plugin, seed data, or test framework reported.
+
+Syntax errors, import errors, test setup failures, fixture failures, missing dependencies, or environment failures do not count as valid Red evidence. They must be classified and fixed or reported before the Red phase can be considered complete.
+
+## Requirement Authority And Conflict Rule
+
+Expected behavior must come from the best available authority, not blindly from either old Spec documents or the current implementation.
+
+For new or explicitly changed behavior, active Spec, PRD, issue, acceptance criteria, API contract, or explicit user confirmation is the primary expectation source.
+
+For already implemented behavior, existing tests, current business code, public API contracts, database constraints, migrations, old Specs, and production-compatible behavior form the existing behavior baseline. This baseline describes what the system currently does and what existing tests protect. It is important evidence, but it is not automatically correct forever.
+
+When an active requirement touches behavior that already has a baseline, classify the relationship before changing tests or production code:
+
+| Relationship | Meaning | Required action |
+| --- | --- | --- |
+| `extends` | Adds new behavior without changing existing behavior. | Preserve existing tests and add new test points or tests. |
+| `amends` | Partially changes existing behavior. | Modify affected tests only with the new authority recorded; keep unaffected old behavior covered. |
+| `supersedes` | Explicitly replaces existing behavior. | Replace or retire affected tests only with the replacement authority and remaining coverage recorded. |
+| `conflicts` | New requirement, old Spec, existing tests, code, API contract, or data model disagree without clear authority. | Stop changing expectations, tests, or production code; request clarification or cite a clear decision before continuing. |
+
+This is the Requirement Conflict Gate. It must trigger before extracting new test points for changed existing behavior, before modifying or deleting existing tests, before changing production code to match a new expectation, and when a failing test may indicate a requirement change instead of an implementation defect.
+
+If the gate finds `conflicts`, the agent may continue read-only analysis, list candidate interpretations, and propose options, but must not change expected behavior, modify or delete tests, or change production code for the disputed behavior until explicit authority is available.
+
 ## Test Design Before Scripts
 
 AI must perform lightweight test design before generating test scripts.
@@ -78,7 +108,7 @@ A test script is invalid if it does not have:
 - A meaningful assertion target.
 - A traceable source such as Spec, test point, code path, API contract, risk, or historical defect.
 
-Do not generate tests directly from implementation code alone. Use implementation code to find missing branches and risks, but use the Spec to decide expected behavior.
+Do not generate tests directly from implementation code alone. Use implementation code to find missing branches, risks, and the existing behavior baseline, but use the best available requirement authority to decide expected behavior. If requirement authority and implementation disagree, apply the Requirement Conflict Gate.
 
 ## Mixed Testing Method
 
@@ -94,7 +124,7 @@ Use a mixed method:
 | Risk-based testing | Decide regression scope from code diff, impacted modules, dependencies, critical paths, and historical defects. |
 | Evidence-based validation | Confirm runtime behavior with command output, logs, responses, screenshots, traces, and reports. |
 
-Code visibility must improve coverage, not replace user-oriented validation. Do not write tests that only preserve the current implementation if the implementation conflicts with the Spec.
+Code visibility must improve coverage, not replace user-oriented validation. Do not write tests that only preserve the current implementation if the implementation conflicts with active requirement authority. If authority is unclear, apply the Requirement Conflict Gate.
 
 ## Layered Testing
 
@@ -124,7 +154,7 @@ Before submitting or declaring work complete:
 
 If an existing test is modified, state the reason:
 
-1. The Spec changed.
+1. The active requirement changed.
 2. The expected behavior intentionally changed.
 3. The old test was incorrect.
 4. The old test was flaky and is being fixed.
@@ -132,7 +162,7 @@ If an existing test is modified, state the reason:
 
 Changing a test is never enough by itself. The agent must also confirm the updated test still has a clear purpose, meaningful assertions, and traceability.
 
-Deleting or retiring a test is allowed only when the Spec explicitly removes or replaces the behavior, or when equal or better coverage remains elsewhere. The agent must document the requirement source and remaining coverage.
+Deleting or retiring a test is allowed only when the active requirement authority explicitly removes or replaces the behavior, or when equal or better coverage remains elsewhere. The agent must document the requirement source, the baseline behavior being changed, and remaining coverage.
 
 ## Regression Rule
 
@@ -198,7 +228,7 @@ When a test fails, classify the failure before changing anything:
 | Test design problem | Fix the test and explain why the old test was wrong. |
 | Test data problem | Fix setup, isolation, cleanup, or seed data. |
 | Environment problem | Fix or report configuration, dependency, service, port, credential, or deployment issue. |
-| Spec ambiguity | Stop and request clarification or update the Spec before changing expected behavior. |
+| Requirement ambiguity | Stop and request clarification or update the requirement source before changing expected behavior. |
 | Flaky test | Diagnose root cause; quarantine only with explicit tracking and repair plan. |
 
 Do not blindly retry CI. A retry is acceptable only after classifying why retry is reasonable, such as known infrastructure interruption.

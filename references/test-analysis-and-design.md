@@ -32,6 +32,17 @@ Collect or inspect the available inputs before designing tests:
 
 If a required input is missing and the missing information changes expected behavior, stop and ask for clarification. Do not invent business rules.
 
+## Requirement Conflict Gate
+
+Use this gate before extracting or changing test points for already implemented behavior:
+
+1. Identify active requirement sources: Spec, PRD, issue, acceptance criteria, API contract, or explicit user confirmation.
+2. Identify the existing behavior baseline: existing tests, current implementation, public API contract, data model, migrations, old Specs, and production-compatible behavior.
+3. Classify the relationship between the active requirement and the baseline as `extends`, `amends`, `supersedes`, or `conflicts`.
+4. If the relationship is `conflicts`, stop changing test expectations, tests, or production code for the disputed behavior and request clarification or cite a clear decision authority.
+
+Use the active requirement as change authority only for explicitly changed behavior. Preserve existing behavior coverage unless the new authority clearly amends or supersedes it.
+
 ## Analysis Sources
 
 Extract test points from multiple sources. Do not rely on only one source.
@@ -77,7 +88,7 @@ Apply:
 - State mutation coverage.
 - Side-effect observation for events, persistence calls, or emitted outputs.
 
-White-box analysis may reveal missing tests, but it must not redefine expected behavior. Spec owns expected behavior.
+White-box analysis may reveal missing tests and the existing behavior baseline, but it must not redefine expected behavior. Active requirement authority owns changed expected behavior. If old Spec, new Spec, tests, and implementation disagree, use the Requirement Conflict Gate instead of guessing.
 
 ### Gray-Box Design
 
@@ -133,7 +144,7 @@ Required fields:
 | Field                | Meaning                                                                                                                                                                                                                                                                                                                                 |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Test point           | What behavior, rule, risk, or path is being verified.                                                                                                                                                                                                                                                                                   |
-| Source               | Spec item, data field, API contract, code path, risk, or historical defect.                                                                                                                                                                                                                                                             |
+| Source / authority   | Active requirement, data field, API contract, existing behavior baseline, code path, risk, historical defect, or explicit confirmation.                                                                                                                                                                                                  |
 | Design method        | Equivalence class, boundary value, decision table, path coverage, state transition, etc.                                                                                                                                                                                                                                                |
 | Test layer           | Unit, API/integration, or E2E. Regression reuses these layers based on impact.                                                                                                                                                                                                                                                          |
 | Input / precondition | Input values, role, data state, environment state, or setup condition.                                                                                                                                                                                                                                                                  |
@@ -142,12 +153,14 @@ Required fields:
 | Priority             | P0, P1, P2, or P3.                                                                                                                                                                                                                                                                                                                      |
 | Coverage artifact    | Project-root relative path to the automated test file that covers this test point. It may be empty during initial analysis. After a Red test or other automated test is created and executed, update it with the relative path and optional `#testName`. Commands are supporting evidence only, except when no stable file path exists. |
 
-Example. Use Chinese for project-specific test design content when the team works in Chinese. Keep code identifiers, API paths, enum values, field names, and test file names in their original form.
+For changed existing behavior, also record the requirement relationship and decision authority in the QA report's `Requirement Authority / Conflict Review` section.
 
-| Test point               | Source        | Design method | Test layer                  | Input / precondition | Expected result              | Assertion target              | Priority | Coverage artifact                                          |
-| ------------------------ | ------------- | ------------- | --------------------------- | -------------------- | ---------------------------- | ----------------------------- | -------- | ---------------------------------------------------------- |
-| 供应商名称不能为空       | Spec 字段规则 | 等价类划分    | Unit + API/integration      | `supplierName` 为空  | 校验失败                     | 返回必填字段错误码和错误信息 | P0       | 初始为空；实现后回填，如 `backend/src/test/java/.../SupplierValidatorTest.java#shouldRejectEmptySupplierName` |
-| 无权限用户不能删除供应商 | 权限规则      | 决策表        | API/integration + E2E smoke | 当前角色没有删除权限 | 删除请求被拒绝，页面不能删除 | HTTP 403；删除按钮隐藏或禁用 | P0       | 初始为空；实现后回填，如 `backend/src/test/java/.../SupplierPermissionApiTest.java#shouldRejectDeleteWithoutPermission` |
+Example only. Replace these rows with project-specific behavior. Use Chinese for project-specific test design content when the team works in Chinese. Keep code identifiers, API paths, enum values, field names, and test file names in their original form.
+
+| Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Entity name is required | Active field rule | Equivalence partitioning | Unit + API/integration | `name` is empty | Validation fails | Required-field error code and message | P0 | Initially empty; fill after execution, such as `backend/src/test/java/.../EntityValidatorTest.java#shouldRejectEmptyName` |
+| User without delete permission cannot delete entity | Permission rule | Decision table | API/integration + E2E smoke | Current role lacks delete permission | Delete is rejected and page cannot delete | HTTP 403; delete button hidden or disabled | P0 | Initially empty; fill after execution, such as `backend/src/test/java/.../EntityPermissionApiTest.java#shouldRejectDeleteWithoutPermission` |
 
 ## From Analysis to TDD
 
@@ -163,7 +176,7 @@ Use strict Red-Green-Refactor for:
 For each TDD candidate, record:
 
 - Initial failing test name.
-- Why it should fail before implementation.
+- Why it should fail before implementation, including the expected Red failure reason.
 - Minimal behavior required to pass.
 - Related Spec or rule.
 - Regression tests that must remain passing.
@@ -173,7 +186,7 @@ Then close coverage for each in-scope executable TDD candidate:
 1. Check whether an appropriate test file or test class already exists.
 2. If it exists, add or update the smallest relevant test case.
 3. If it does not exist, create the test file or class following the project's existing test layout and naming conventions.
-4. Run the new or modified test before implementation and confirm it fails for the expected behavior reason, not because of syntax, environment, import, or setup errors.
+4. Run the new or modified test before implementation and confirm it fails for the expected behavior reason, not because of syntax, import, fixture, environment, or setup errors.
 5. If the test cannot be created or run because prerequisites are missing, report the blocker to the human owner with the exact missing dependency, environment variable, account, service, plugin, or permission. Resume only after the human confirms it is resolved, then create/run the test and continue coverage closure.
 6. After the Red test exists and has been executed, update `Coverage artifact` with the project-root relative path and optional test class/method or test name. Record the command as supporting evidence when useful.
 7. Continue with Green and Refactor, then keep `Coverage artifact` aligned with the final code.
@@ -248,16 +261,16 @@ For each test point:
 `Coverage artifact` should use a project-root relative path and may include `#testName`, for example:
 
 ```text
-backend/src/test/java/com/acme/supplier/SupplierValidatorTest.java#shouldRejectEmptySupplierName
-backend/src/test/java/com/acme/supplier/SupplierApiTest.java#shouldRejectMissingSupplierName
-frontend/tests/e2e/supplier-permission.spec.ts
+backend/src/test/java/com/acme/entity/EntityValidatorTest.java#shouldRejectEmptyName
+backend/src/test/java/com/acme/entity/EntityApiTest.java#shouldRejectMissingName
+frontend/tests/e2e/entity-permission.spec.ts
 ```
 
 Do not use absolute local machine paths. Commands are supporting evidence for execution. If no stable file path exists and only a command covers the test point, record the command and the relevant test selector, for example:
 
 ```text
-pnpm test -- supplier-validator
-mvn test -Dtest=SupplierApiTest#shouldRejectMissingSupplierName
+pnpm test -- entity-validator
+mvn test -Dtest=EntityApiTest#shouldRejectMissingName
 ```
 
 Create automated tests when:
@@ -271,11 +284,20 @@ Create automated tests when:
 
 If a scenario truly cannot be covered by an automated unit, API/integration, or E2E test, document why and do not count it as covered by this skill.
 
+Use evidence types consistently:
+
+| Evidence type | Meaning |
+| --- | --- |
+| Execution evidence | Command, result, report path, CI URL, trace, screenshot, log, or response used to support whether a check ran and passed, failed, or was blocked. |
+| Behavioral evidence | The specific behavior assertion proved by the test, such as error code, persisted state, disabled UI action, state transition, or response shape. |
+| Coverage evidence | The project-relative test file, test case, or selector that maps a test point to executable coverage. |
+
 ## Completeness Checklist
 
 Before generating scripts, verify:
 
-- The expected behavior comes from Spec or explicit user confirmation.
+- The expected behavior comes from active requirement authority, existing behavior baseline, or explicit user confirmation as appropriate.
+- Requirement conflicts were classified before changing test expectations, existing tests, or production code.
 - Normal, invalid, boundary, permission, and state scenarios were considered.
 - Data model and API contract were checked when relevant.
 - Test points were mapped to appropriate layers.
@@ -291,6 +313,7 @@ After creating or executing tests, verify:
 - Each in-scope executable test point has a coverage artifact after prerequisites are available.
 - New or modified tests were executed and results were recorded.
 - Red tests failed for the expected behavior reason before implementation when strict TDD applies.
+- Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.
 - Coverage artifacts use project-root relative paths, with optional `#testName`.
 - Commands, logs, screenshots, traces, or reports are recorded as execution evidence when relevant.
 - Uncovered test points and unresolved prerequisite blockers are listed explicitly.

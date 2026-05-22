@@ -1,4 +1,4 @@
-﻿# QA Test Report
+# QA Test Report
 
 ## Conclusion
 
@@ -8,44 +8,77 @@
 - Date:
 - Summary:
 
-Example:
+## Evidence Guide
 
-- Overall result: BLOCKED
-- Requirement / change ID: `SUP-2026-014`
-- Summary: Unit 和 API/integration 已通过；E2E 因缺少无删除权限测试账号被阻塞；runtime validation 仅完成服务可用性 smoke。
+Use structured summaries instead of pasting long raw logs.
+
+| Evidence type | What to record | Example |
+| --- | --- | --- |
+| Execution evidence | Command, result, report path, CI URL, trace, screenshot, log, or response. | `pnpm test -- user-form.test.ts` PASS, report path |
+| Behavioral evidence | The specific behavior proved by assertions. | Empty required field returns validation error code |
+| Coverage evidence | Project-relative test file and optional test name that covers a test point. | `src/user/user-form.test.ts#rejects empty name` |
 
 ## Scope
 
 | Area | In scope? | Notes |
 | --- | --- | --- |
-| Unit | Yes / No | 核心字段校验、权限判断 |
-| API/integration | Yes / No | `POST /api/suppliers`、`DELETE /api/suppliers/{id}` |
-| E2E | Yes / No | 无权限用户删除供应商关键路径 |
-| Regression | Yes / No | 供应商创建、编辑、删除相关旧行为 |
-| Runtime QA validation | Yes / No | 仅验证服务启动和关键页面可达 |
+| Unit | Yes / No | |
+| API/integration | Yes / No | |
+| E2E | Yes / No | |
+| Regression | Yes / No | |
+| Runtime QA validation | Yes / No | Availability smoke only; not business coverage |
+
+## Requirement Authority / Conflict Review
+
+Use this section when a requirement touches existing behavior, existing tests, old Specs, API contracts, data models, or current implementation.
+
+| Behavior | Existing baseline | New requirement source | Relationship | Decision authority | Test action | Code action |
+| --- | --- | --- | --- | --- | --- | --- |
+| | Existing tests / code / API contract / old Spec | Active Spec / PRD / issue / user confirmation | extends / amends / supersedes / conflicts | Source or decision owner | Add / keep / modify / delete / blocked | Implement / keep / blocked |
+
+Relationship meanings:
+
+- `extends`: Adds new behavior without changing existing behavior. Keep existing tests and add new coverage.
+- `amends`: Partially changes existing behavior. Modify affected tests only with authority recorded.
+- `supersedes`: Explicitly replaces existing behavior. Retire or replace old tests only with authority and remaining coverage recorded.
+- `conflicts`: Sources disagree without clear authority. Do not change expected behavior, tests, or production code until clarified.
+
+## TDD Summary
+
+Use this section for strict TDD candidates. Red evidence is valid only when the test fails for the expected behavior reason, not because of syntax, import, fixture, setup, or environment failure.
+
+| Test point | Source / authority | Red evidence | Red failure reason | Green evidence | Refactor / regression evidence | Coverage artifact | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| | | Command/result/report | Expected behavior gap, not setup failure | Command/result/report | Command/result/report | `path/to/test#name` | RED / GREEN / PASS / BLOCKED |
+
+## Non-TDD Exceptions
+
+Use this section when strict Red-Green-Refactor is not applied.
+
+| Scope | Reason strict TDD does not apply | Alternative validation | Residual risk |
+| --- | --- | --- | --- |
+| | Pure style / copy / low-risk display / one-time script / unrunnable UI or service | Review / snapshot / smoke / manual check / runtime validation | |
 
 ## Tests Run
 
 | Layer | Test / suite | Command | Result | Evidence |
 | --- | --- | --- | --- | --- |
-| Unit | `SupplierValidatorTest` | `mvn test -Dtest=SupplierValidatorTest` | PASS | command output / report path |
-| API/integration | `SupplierPermissionApiTest` | `mvn test -Dtest=SupplierPermissionApiTest` | PASS | command output / report path |
-| E2E | `supplier-permission.spec.ts` | `pnpm playwright test supplier-permission.spec.ts` | BLOCKED | 缺少无删除权限测试账号 |
-| Regression | supplier related tests | `mvn test -Dtest=Supplier*Test` | PASS | command output / report path |
+| Unit | | | PASS / FAIL / BLOCKED | |
+| API/integration | | | PASS / FAIL / BLOCKED | |
+| E2E | | | PASS / FAIL / BLOCKED | |
+| Regression | | | PASS / FAIL / BLOCKED | |
 
 ## Tests Not Run / Blockers
 
 | Test / scope | Reason not run | Exact blocker | Required owner action | Residual risk |
 | --- | --- | --- | --- | --- |
-| `supplier-permission.spec.ts` | BLOCKED | 缺少无删除权限测试账号 | 提供或创建对应测试账号 | 页面权限入口未自动化验证 |
+| | BLOCKED / Not applicable | Missing account / service / permission / env var / seed / browser / dependency | | |
 
 ## Coverage Summary
 
-| Test point | Layer | Coverage artifact | Status |
-| --- | --- | --- | --- |
-| 供应商名称不能为空 | Unit + API/integration | `backend/src/test/java/.../SupplierValidatorTest.java#shouldRejectEmptySupplierName` | COVERED |
-| 无权限用户不能删除供应商 | API/integration | `backend/src/test/java/.../SupplierPermissionApiTest.java#shouldRejectDeleteWithoutPermission` | COVERED |
-| 无权限用户页面不能删除供应商 | E2E | `frontend/tests/e2e/supplier-permission.spec.ts#rejects delete without permission` | BLOCKED |
+| Test point | Layer | Behavioral evidence | Coverage artifact | Status |
+| --- | --- | --- | --- | --- |
+| | Unit / API/integration / E2E | | `path/to/test#name` | COVERED / BLOCKED / UNCOVERED |
 
 ## Regression Scope
 
@@ -54,13 +87,7 @@ Example:
 - Historical defects considered:
 - Requirement-driven test additions / modifications / deletions:
 - Regression risk level: Low / Medium / High
-
-Example:
-
-- Changed behavior: 供应商名称必填；删除权限收紧。
-- Directly impacted old behavior: 供应商创建、编辑、删除。
-- Requirement-driven test changes: 修改空名称旧预期，新增无权限删除 API 测试。
-- Regression risk level: Medium。
+- Selected regression tests and why:
 
 ## Runtime QA Validation
 
@@ -68,14 +95,13 @@ Runtime QA validation is availability smoke evidence only. It does not count as 
 
 | Target | Operation | Result | Evidence | Cleanup |
 | --- | --- | --- | --- | --- |
-| local service | 启动服务并访问 `/health` | PASS | health response / log line | 停止本地服务 |
-| supplier page | 打开供应商列表页 | PASS | screenshot / trace | 关闭 browser context |
+| | | PASS / FAIL / BLOCKED | | |
 
 ## Failure Analysis
 
 | Failure / issue | Failure type | Root cause | Action taken | Follow-up coverage |
 | --- | --- | --- | --- | --- |
-| E2E 未执行 | Environment problem / BLOCKED | 缺少无删除权限测试账号 | 报告 blocker，等待账号准备 | 账号准备后执行 `supplier-permission.spec.ts` |
+| | Code / test design / requirement change / data / environment / dependency / flaky / ambiguity | | | |
 
 ## Failure Learning
 
@@ -83,20 +109,30 @@ Runtime QA validation is availability smoke evidence only. It does not count as 
 - Knowledge location:
 - Summary:
 
-Example:
-
-- Learning recorded or recommended: Yes
-- Summary: 权限类缺陷需同时断言拒绝状态和数据未变更；后续涉及删除、审批、归档操作时优先检查权限矩阵。
-
 ## Remaining Risks
 
 - Uncovered test points:
 - Unresolved prerequisite blockers:
+- Requirement authority conflicts:
 - Known flaky areas:
 - Manual follow-up:
 
 ## Final Statement
 
-Example:
+Summarize the final QA result, tests run and not run, TDD evidence status, regression scope, runtime validation boundary, unresolved blockers, and remaining risks.
 
-Unit、API/integration 和相关回归测试已通过。E2E 权限路径因缺少无删除权限测试账号被阻塞，已记录 blocker 和剩余风险。Runtime QA validation 仅证明本地服务和供应商列表页可用，不计入 Unit/API/E2E 业务覆盖。当前结论为 BLOCKED，待测试账号准备后执行 E2E 并更新 coverage artifact。
+## Example Snippets
+
+These examples are illustrative only. Replace them with project-specific behavior.
+
+TDD summary row:
+
+| Test point | Source / authority | Red evidence | Red failure reason | Green evidence | Refactor / regression evidence | Coverage artifact | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Required name is rejected | Active field rule | `pnpm test -- form.test.ts -t "rejects empty name"` FAIL | Validation rule missing; assertion expected required-field error | Same command PASS | `pnpm test -- form.test.ts api.test.ts` PASS | `src/form.test.ts#rejects empty name` | PASS |
+
+Conflict review row:
+
+| Behavior | Existing baseline | New requirement source | Relationship | Decision authority | Test action | Code action |
+| --- | --- | --- | --- | --- | --- | --- |
+| Deletion permission | Existing API test denies role A; current service enforces role A denial | Spec-B says role A may delete but does not mention old rule | conflicts | Pending owner confirmation | BLOCKED: do not modify old test | BLOCKED: do not change permission logic |

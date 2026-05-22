@@ -43,7 +43,7 @@ Classify the failure before taking action.
 | Environment problem | Missing service, port conflict, credential, plugin, browser, database, config, network, or deployment issue. | Fix or report environment blocker; do not change assertions. |
 | Dependency or integration problem | External service, package, container, queue, cache, or contract changed unexpectedly. | Classify as environment, integration contract, or production code issue; capture evidence. |
 | Flaky test | Non-deterministic timing, race, ordering, animation, clock, random data, or intermittent infrastructure. | Diagnose root cause; quarantine only with explicit tracking and repair plan. |
-| Spec ambiguity | Multiple plausible expected behaviors. | Stop and request clarification before changing expected behavior. |
+| Requirement ambiguity | Multiple plausible expected behaviors. | Stop and request clarification before changing expected behavior. |
 
 If multiple categories apply, choose the category that explains the first failing cause, then retest after repair.
 
@@ -52,7 +52,7 @@ If multiple categories apply, choose the category that explains the first failin
 Use these rules before editing:
 
 - If the Spec is clear and the test is meaningful, fix code.
-- If the Spec changed, update tests only with the requirement source and regression impact.
+- If the active requirement changed, update tests only with the requirement source and regression impact.
 - If the test is wrong, fix the test and state why.
 - If setup is wrong, fix data or environment setup, not assertions.
 - If the failure is flaky, identify the nondeterministic cause before adding waits or retries.
@@ -145,7 +145,7 @@ Before accepting failure handling, verify:
 
 - Evidence was gathered before editing.
 - The failure type was classified.
-- Expected behavior was traced to Spec or explicit clarification.
+- Expected behavior was traced to active requirement authority, existing behavior baseline, or explicit clarification as appropriate.
 - Tests were not weakened, skipped, or deleted to pass.
 - Changed tests have documented justification.
 - Flaky failures have a root-cause hypothesis or repair plan.

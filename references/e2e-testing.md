@@ -161,7 +161,7 @@ After creating or modifying E2E tests:
 Examples:
 
 ```text
-frontend/tests/e2e/supplier-create.spec.ts#creates supplier as purchasing manager
+frontend/tests/e2e/entity-create.spec.ts#creates entity as authorized user
 tests/e2e/approval-workflow.spec.ts#approver rejects submitted request
 ```
 

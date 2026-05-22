@@ -101,7 +101,7 @@ Changing a test increases regression responsibility.
 
 When an existing test is modified, state the reason:
 
-1. The Spec changed.
+1. The active requirement changed.
 2. The expected behavior intentionally changed.
 3. The old test was incorrect.
 4. The old test was flaky and is being fixed.

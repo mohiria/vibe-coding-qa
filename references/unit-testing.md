@@ -153,8 +153,8 @@ After creating or modifying unit tests:
 Examples:
 
 ```text
-backend/src/test/java/com/acme/supplier/SupplierValidatorTest.java#shouldRejectEmptySupplierName
-frontend/src/features/supplier/supplier-form.test.tsx#rejects empty supplier name
+backend/src/test/java/com/acme/entity/EntityValidatorTest.java#shouldRejectEmptyName
+frontend/src/features/entity/entity-form.test.tsx#rejects empty entity name
 ```
 
 Runtime QA validation is not unit coverage. It may prove that an app or service starts, but it does not replace unit tests for business rules.

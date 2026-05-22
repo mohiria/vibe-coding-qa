@@ -171,8 +171,8 @@ After creating or modifying API/integration tests:
 Examples:
 
 ```text
-backend/src/test/java/com/acme/supplier/SupplierApiTest.java#shouldRejectMissingSupplierName
-backend/tests/integration/supplier-permission.spec.ts#rejects delete without permission
+backend/src/test/java/com/acme/entity/EntityApiTest.java#shouldRejectMissingName
+backend/tests/integration/entity-permission.spec.ts#rejects delete without permission
 ```
 
 Runtime QA validation is not API/integration coverage. A health check or manual API smoke can prove availability, but it does not replace contract, authorization, or persistence assertions.

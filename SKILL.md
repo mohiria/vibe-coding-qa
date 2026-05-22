@@ -13,15 +13,17 @@ Follow this order by default:
 
 1. Read `references/qa-constitution.md` for the mandatory testing principles.
 2. Analyze the Spec, PRD, data model, API contract, code structure, and code changes.
-3. Read `references/test-analysis-and-design.md` and create a lightweight test design before generating test scripts.
+3. Read `references/test-analysis-and-design.md` and create a lightweight test design, including requirement authority checks for changed existing behavior.
 4. Classify each test point into the right coverage layer: unit, API/integration, or E2E.
-5. Generate or review unit tests first for core logic and business rules.
-6. Generate or review API/integration tests for service contracts, authorization, data consistency, and integration behavior.
-7. Generate or review E2E scenarios for critical user flows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
-8. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
-9. Analyze regression impact for any changed requirements, code, or tests.
-10. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
-11. If tests fail, classify the failure before changing code or tests.
+5. Before changing production code, confirm a valid Red test, reusable failing test, documented non-TDD exception, or exact prerequisite blocker.
+6. Generate or review unit tests first for core logic and business rules.
+7. Generate or review API/integration tests for service contracts, authorization, data consistency, and integration behavior.
+8. Generate or review E2E scenarios for critical user flows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
+9. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
+10. Analyze regression impact for any changed requirements, code, or tests.
+11. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
+12. If tests fail, classify the failure before changing code or tests.
+13. In the final QA report, include TDD evidence and requirement authority or conflict review when relevant.
 
 ## TDD Position
 
@@ -53,7 +55,10 @@ Load only the reference needed for the current task.
 - Every in-scope executable test point must be attempted in the current testing cycle. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute and record the coverage artifact.
 - Always run or require execution of newly added tests and modified tests.
 - Always explain why an existing test was modified.
+- Before modifying or deleting an existing test, state the requirement authority and whether the new requirement extends, amends, supersedes, or conflicts with the existing behavior baseline.
 - Never weaken assertions, delete negative cases, skip tests, or change expected behavior only to make a suite pass.
+- A Red test is valid only when it fails for the expected behavior reason. Syntax, import, test setup, fixture, or environment failures are blockers or setup failures, not Red evidence.
+- If strict TDD does not apply, record the reason, alternative validation, and remaining risk.
 - Prefer the lowest effective test layer: unit before API/integration, API/integration before E2E.
 - Do not use E2E to cover every detail; reserve E2E for critical user journeys and integration confidence.
 - Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
@@ -70,6 +75,8 @@ Use the templates only when they help the task:
 - `templates/qa-test-report.md` for the final QA report, including runtime QA validation evidence when required.
 
 When a template file is needed, copy or adapt its structure into the project artifact requested by the user. Do not create unnecessary documents.
+
+Final QA reports should use structured evidence summaries instead of long raw logs. Record execution evidence, behavioral evidence, coverage evidence, TDD Red/Green/Regression evidence, and unresolved requirement conflicts in the relevant report sections.
 
 ## Script
 
