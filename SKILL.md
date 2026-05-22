@@ -82,3 +82,5 @@ Final QA reports should use structured evidence summaries instead of long raw lo
 ## Script
 
 Use `scripts/qa_artifacts.mjs` only for deterministic template generation. It must not decide test scope, evaluate quality, or replace engineering judgment.
+
+Use `scripts/qa_artifacts.mjs check <template-name> <artifact-path>` for deterministic artifact structure checks. It checks required sections, placeholder content, and evidence fields. It must not decide QA scope, evaluate test quality, execute tests, or replace engineering judgment.
