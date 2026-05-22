@@ -36,9 +36,9 @@ Classify the failure before taking action.
 
 | Failure type | Signals | Action |
 | --- | --- | --- |
-| Code implementation problem | Test expectation matches Spec, implementation violates it. | Fix production code, rerun affected tests, add missing coverage if needed. |
-| Test design problem | Test expectation conflicts with Spec, asserts the wrong behavior, or targets the wrong boundary. | Fix the test and document why the old test was wrong. |
-| Requirement change | Spec intentionally changed expected behavior. | Update tests per requirement change handling and run regression for old behavior that remains supported. |
+| Code implementation problem | Test expectation matches active requirement authority or confirmed baseline behavior, implementation violates it. | Fix production code, rerun affected tests, add missing coverage if needed. |
+| Test design problem | Test expectation conflicts with active requirement authority, asserts the wrong behavior, or targets the wrong boundary. | Fix the test and document why the old test was wrong. |
+| Requirement change | Active requirement authority intentionally changed expected behavior. | Update tests per requirement change handling and run regression for old behavior that remains supported. |
 | Test data problem | Missing seed, stale fixture, shared mutable data, cleanup failure, order dependency. | Fix setup, isolation, fixture, factory, or cleanup. |
 | Environment problem | Missing service, port conflict, credential, plugin, browser, database, config, network, or deployment issue. | Fix or report environment blocker; do not change assertions. |
 | Dependency or integration problem | External service, package, container, queue, cache, or contract changed unexpectedly. | Classify as environment, integration contract, or production code issue; capture evidence. |
@@ -51,12 +51,12 @@ If multiple categories apply, choose the category that explains the first failin
 
 Use these rules before editing:
 
-- If the Spec is clear and the test is meaningful, fix code.
+- If active requirement authority is clear and the test is meaningful, fix code.
 - If the active requirement changed, update tests only with the requirement source and regression impact.
 - If the test is wrong, fix the test and state why.
 - If setup is wrong, fix data or environment setup, not assertions.
 - If the failure is flaky, identify the nondeterministic cause before adding waits or retries.
-- If expected behavior is ambiguous, ask for clarification.
+- If expected behavior is ambiguous or authority conflicts with the existing behavior baseline, use the Requirement Conflict Gate before changing tests or production code.
 
 Never:
 
@@ -133,7 +133,7 @@ A failure analysis report should include:
 - Evidence used for classification.
 - Failure type.
 - Root cause or current best explanation.
-- Code, test, data, environment, or Spec action taken.
+- Code, test, data, environment, or requirement action taken.
 - Tests rerun and results.
 - Coverage added or updated.
 - Failure learning recorded or recommended, if the issue is likely to recur.

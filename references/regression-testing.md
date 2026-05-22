@@ -47,7 +47,7 @@ Map each changed item to behavior and tests.
 | Test helper or fixture | Tests that depend on the helper, fixture setup, cleanup, and data isolation. |
 | Configuration or environment | Startup, routing, external service boundary, runtime QA validation if availability risk exists. |
 
-Use code visibility to find affected callers, but use the Spec and existing behavior to decide what must still hold.
+Use code visibility to find affected callers, but use active requirement authority and the existing behavior baseline to decide what must still hold.
 
 ## Risk Levels
 
@@ -84,14 +84,14 @@ Do not run a huge suite as a substitute for impact analysis when a targeted suit
 
 ## Requirement Change Handling
 
-When the change is a requirement change, update the test set deliberately:
+When the change is a requirement change, update the test set deliberately and align it with the Requirement Conflict Gate:
 
-| Requirement change | Test response |
+| Relationship | Test response |
 | --- | --- |
-| New behavior added | Add new test points and tests at the lowest effective layer. |
-| Existing behavior changed | Modify old tests only when the Spec intentionally changes the expected result; state whether the old behavior remains supported. |
-| Behavior removed | Delete or retire tests only when the Spec explicitly removes the behavior or equal or better coverage remains elsewhere. |
-| Behavior split by role, flag, tenant, or state | Keep old-path tests where the old path remains supported, and add tests for the new variants. |
+| `extends` | Add new test points and tests at the lowest effective layer while keeping existing tests. |
+| `amends` | Modify affected old tests only when active requirement authority intentionally changes the expected result; state whether old behavior remains supported. |
+| `supersedes` | Delete, retire, or replace tests only when active requirement authority explicitly removes or replaces the behavior, or when equal or better coverage remains elsewhere. |
+| `conflicts` | Do not change tests or production code for the disputed behavior until explicit authority or human confirmation resolves the conflict. |
 
 For requirement-driven test additions, modifications, or deletions, record the requirement source, the affected tests, the reason for the change, and the remaining coverage for old behavior that is still supported. Do not delete tests because implementation changed, setup is inconvenient, or the test is failing.
 

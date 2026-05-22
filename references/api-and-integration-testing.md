@@ -43,7 +43,7 @@ Before writing an API or integration test, collect:
 - Existing test framework, app bootstrap, test database, fixtures, factories, and cleanup pattern.
 - Integration boundary strategy: real local service, container, fake, mock server, or stub.
 
-If the contract or expected behavior is ambiguous, stop and ask for clarification. Do not infer business behavior only from current implementation.
+If the contract or expected behavior is ambiguous, stop and ask for clarification. Use the current implementation to understand the existing behavior baseline, not to define changed expected behavior. If active requirement authority conflicts with the baseline, use the Requirement Conflict Gate before changing tests or production code.
 
 ## TDD Workflow
 
@@ -52,7 +52,7 @@ Use strict Red-Green-Refactor for API and integration behavior when the contract
 1. Select one in-scope executable test point from the lightweight design.
 2. Find the smallest existing API/integration test file or create one following project conventions.
 3. Write the Red test at the boundary that proves the behavior.
-4. Run the new or directly relevant test and confirm it fails for the expected behavior reason.
+4. Run the new or directly relevant test and confirm it fails for the expected behavior reason, not because of syntax, import, setup, fixture, environment, database, or service failure.
 5. Implement the minimum production change needed to pass.
 6. Rerun the new or modified test.
 7. Run directly affected existing API/integration tests and relevant unit tests.

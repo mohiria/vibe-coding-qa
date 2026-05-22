@@ -37,12 +37,12 @@ Do not use a unit test when correctness depends on real persistence, routing, au
 Before writing a unit test, collect:
 
 - The lightweight test design row for the test point.
-- The expected behavior source: Spec, PRD, API contract, data rule, code path, risk, or historical defect.
+- The expected behavior authority: active requirement, API contract, data rule, existing behavior baseline, code path, risk, historical defect, or explicit clarification.
 - The smallest production unit that owns the rule.
 - Existing test layout, naming conventions, fixtures, factories, and assertion style.
 - Required dependency seams, mocks, stubs, or fake data.
 
-If the expected behavior is unclear, stop and ask for clarification. Do not turn the current implementation into the expected behavior by default.
+If the expected behavior is unclear or conflicts with the existing behavior baseline, use the Requirement Conflict Gate before changing tests or production code. Do not turn the current implementation into the expected behavior by default.
 
 ## TDD Workflow
 
@@ -51,7 +51,7 @@ Use strict Red-Green-Refactor for unit tests whenever behavior can be tested bef
 1. Select one in-scope executable test point from the lightweight design.
 2. Find the smallest existing test file or create the smallest conventional test file.
 3. Write the Red test with a meaningful name and assertion.
-4. Run only the new or directly relevant test and confirm it fails for the expected behavior reason.
+4. Run only the new or directly relevant test and confirm it fails for the expected behavior reason, not because of syntax, import, setup, fixture, or environment failure.
 5. Implement the minimum production change needed to pass.
 6. Rerun the new or modified test.
 7. Run directly affected existing unit tests.
