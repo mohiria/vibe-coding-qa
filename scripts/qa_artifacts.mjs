@@ -169,6 +169,20 @@ function isPlaceholderCell(cell) {
     /^expected behavior gap, not setup failure$/i,
     /^path\/to\/test#name$/i,
     /^missing account \/ service \/ permission \/ env var \/ seed \/ browser \/ dependency$/i,
+    /^missing account \/ service \/ permission \/ env var \/ unsafe data setup path \/ browser \/ dependency$/i,
+    /^page \/ route \/ modal \/ deep link$/i,
+    /^empty \/ existing \/ archived \/ submitted \/ approved \/ rejected \/ locked$/i,
+    /^create \/ edit \/ delete \/ search \/ submit \/ approve \/ reject \/ export$/i,
+    /^success \/ denial \/ validation stop \/ conflict \/ empty \/ recovery$/i,
+    /^cover with e2e \/ lower-layer only with reason \/ blocked$/i,
+    /^fixture \/ factory \/ api \/ seed \/ safe test db \/ fake data$/i,
+    /^unique prefix \/ tenant \/ transaction \/ container \/ storage state$/i,
+    /^api cleanup \/ db cleanup \/ rollback \/ unique residual data$/i,
+    /^ready \/ blocked with exact reason$/i,
+    /^entry point -> operation -> visible outcome$/i,
+    /^covered \/ blocked \/ lower-layer-only$/i,
+    /^command \/ response \/ log \/ test helper$/i,
+    /^ready \/ blocked$/i,
     /^existing tests \/ code \/ api contract \/ old spec$/i,
     /^active spec \/ prd \/ issue \/ user confirmation$/i,
     /^source or decision owner$/i,
@@ -231,6 +245,8 @@ function checkQaTestReport(content) {
     'Scope',
     'TDD Summary',
     'Tests Run',
+    'User Scenario Coverage',
+    'Test Data Setup Evidence',
     'Coverage Summary',
     'Regression Scope',
     'Remaining Risks',
@@ -245,6 +261,19 @@ function checkQaTestReport(content) {
   const coverageSummary = getSection(content, 'Coverage Summary');
   if (!sectionHasNonPlaceholderTableRow(coverageSummary)) {
     addFinding(findings, 'FAIL', templateName, 'Coverage Summary has no non-placeholder row');
+  }
+
+  const scope = getSection(content, 'Scope') || '';
+  if (/E2E\s*\|\s*Yes/i.test(scope)) {
+    const userScenarioCoverage = getSection(content, 'User Scenario Coverage');
+    if (!sectionHasNonPlaceholderTableRow(userScenarioCoverage)) {
+      addFinding(findings, 'WARN', templateName, 'E2E is in scope but User Scenario Coverage has no non-placeholder row');
+    }
+  }
+
+  const testDataSetupEvidence = getSection(content, 'Test Data Setup Evidence');
+  if (!sectionHasNonPlaceholderTableRow(testDataSetupEvidence)) {
+    addFinding(findings, 'WARN', templateName, 'Test Data Setup Evidence has no non-placeholder row');
   }
 
   const tddSummary = getSection(content, 'TDD Summary');
@@ -288,6 +317,8 @@ function checkLightweightTestDesign(content) {
     'Input Sources Checked',
     'Requirement Authority / Conflict Gate',
     'Test Points',
+    'User Scenario Matrix',
+    'Test Data Plan',
     'TDD Candidates',
     'Coverage Closure',
   ]);
@@ -295,6 +326,16 @@ function checkLightweightTestDesign(content) {
   const testPoints = getSection(content, 'Test Points');
   if (!sectionHasNonPlaceholderTableRow(testPoints)) {
     addFinding(findings, 'FAIL', templateName, 'Test Points has no non-placeholder row');
+  }
+
+  const userScenarioMatrix = getSection(content, 'User Scenario Matrix');
+  if (!sectionHasNonPlaceholderTableRow(userScenarioMatrix)) {
+    addFinding(findings, 'WARN', templateName, 'User Scenario Matrix has no non-placeholder row');
+  }
+
+  const testDataPlan = getSection(content, 'Test Data Plan');
+  if (!sectionHasNonPlaceholderTableRow(testDataPlan)) {
+    addFinding(findings, 'WARN', templateName, 'Test Data Plan has no non-placeholder row');
   }
 
   const conflictGate = getSection(content, 'Requirement Authority / Conflict Gate');

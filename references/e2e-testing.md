@@ -1,6 +1,6 @@
 # E2E Testing
 
-Use this reference after lightweight test design identifies critical user journeys that cannot be proven sufficiently by unit or API/integration tests. E2E tests provide confidence that the product works across UI, routing, service, auth, and data boundaries.
+Use this reference after lightweight test design identifies user workflows that must be proven across UI, routing, service, auth, and data boundaries. E2E tests provide confidence that the product works from the user's point of view.
 
 Use the project's existing E2E runner, fixtures, selectors, and CI convention first. If no convention exists, consult `references/test-tooling.md`.
 
@@ -9,7 +9,7 @@ Use the project's existing E2E runner, fixtures, selectors, and CI convention fi
 E2E testing verifies user-visible behavior across the running system:
 
 ```text
-critical scenario
+user workflow scenario
 -> persona and preconditions
 -> user path
 -> business assertions
@@ -21,11 +21,11 @@ E2E is scenario-first. Define the user role, data setup, operation path, asserti
 
 ## When To Use E2E Tests
 
-Use E2E for high-value journeys where cross-boundary confidence matters:
+Use E2E for in-scope user workflows where cross-boundary confidence matters:
 
 | Target | Examples |
 | --- | --- |
-| Critical user flow | Login, create, edit, submit, approve, search, checkout, export. |
+| User workflow | Login, create, edit, submit, approve, search, checkout, export. |
 | Cross-page behavior | Wizard, multi-step form, navigation state, deep link, redirect. |
 | Role-specific path | Admin versus regular user, reviewer versus submitter, owner versus non-owner. |
 | End-to-end integration | UI action triggers API write, DB state change, notification, generated file, or visible result. |
@@ -33,6 +33,20 @@ Use E2E for high-value journeys where cross-boundary confidence matters:
 | Deployment confidence | A small smoke path after high-risk environment or routing changes. |
 
 Do not use E2E to cover every validation rule, branch, or API contract detail. Prefer unit and API/integration tests when they can prove the behavior reliably.
+
+## Scenario Coverage Standard
+
+E2E coverage is user workflow coverage. For the product area touched by the change, enumerate every in-scope workflow before selecting or writing tests.
+
+Cover workflows across these dimensions when they apply:
+
+- Role, permission, tenant, ownership, or account state.
+- Entry point, deep link, navigation path, modal, wizard, or cross-page flow.
+- Data state: empty, existing, duplicate, archived, disabled, deleted, submitted, approved, rejected, expired, or locked.
+- Operation: create, view, edit, delete, disable, archive, restore, search, filter, sort, import, export, submit, approve, reject, assign, or notify.
+- Outcome: success, user-facing validation stop, permission denial, conflict, empty state, retry, recovery, or audit-visible result.
+
+Do not collapse distinct user workflows into one E2E test just to reduce count. Do combine detailed input variants into lower-layer tests when they share the same user workflow and UI outcome.
 
 ## Required Inputs
 
@@ -46,13 +60,13 @@ Before writing an E2E test, collect:
 - Expected visible result and any durable side effect that must be checked.
 - Existing E2E framework, helpers, fixtures, auth setup, and naming conventions.
 
-If an account, permission, seed, plugin, browser, service, or environment is missing, report the exact blocker and resume only after the human confirms it is resolved.
+If an account, permission, plugin, browser, service, or environment is missing, report the exact blocker and resume only after the human confirms it is resolved. Missing ready-made data is not enough to block execution when the data can be created through a fixture, backend API, seed script, or safe test database helper.
 
 ## Scenario-First Workflow
 
 Use this order before writing browser E2E code:
 
-1. Select one in-scope critical scenario from lightweight test design.
+1. Select one in-scope user workflow from the lightweight test design and user scenario matrix.
 2. Define persona or role.
 3. Define starting data and environment state.
 4. Define the shortest realistic user path.
@@ -106,7 +120,9 @@ E2E tests need deterministic setup and cleanup.
 
 Prefer:
 
+- Existing project fixtures, factories, seed helpers, storage-state helpers, or test data builders.
 - API setup over slow UI setup when it does not skip the behavior under test.
+- Safe test database setup when API setup cannot create the required lifecycle, permission, or relationship state.
 - Unique names, IDs, or prefixes.
 - Dedicated test roles and tenants.
 - Isolated fixtures or seed data.
@@ -124,6 +140,16 @@ Avoid:
 
 When cleanup is impossible, make the created data unique and document the residual data risk.
 
+Use this setup order by default:
+
+1. Reuse existing E2E fixture, factory, auth helper, or storage state.
+2. Create prerequisite records through backend APIs.
+3. Run a project-approved seed script.
+4. Use a safe test database helper or direct test database setup.
+5. Report a blocker only if none of the above can create the required state safely.
+
+Do not use UI steps to create prerequisites unless the creation workflow itself is under test or the project has no safer setup path.
+
 ## Flakiness Controls
 
 E2E tests are expensive and prone to environmental noise. Keep them deterministic:
@@ -140,7 +166,7 @@ If a test is flaky, classify the root cause before changing assertions or adding
 
 ## Negative And Role Scenarios
 
-Include E2E negative cases only when they protect a critical journey or user-visible contract:
+Include E2E negative cases when they are distinct user workflows or protect a user-visible contract:
 
 - User lacks permission and cannot complete the action.
 - Invalid state blocks a workflow transition.
@@ -158,7 +184,7 @@ After creating or modifying E2E tests:
 2. Run directly affected E2E tests when the change touches shared navigation, auth, fixtures, or helpers.
 3. Record command, result, and evidence location.
 4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
-5. List uncovered E2E scenarios and unresolved prerequisite blockers.
+5. List uncovered E2E workflow scenarios and unresolved prerequisite blockers.
 
 Examples:
 
@@ -174,9 +200,10 @@ Runtime QA validation is not E2E coverage. A manual browser smoke or health chec
 Before accepting E2E tests, verify:
 
 - The scenario traces to a lightweight test design row.
-- The journey is critical enough for E2E.
+- The in-scope user workflows were enumerated before selecting tests.
 - Lower-layer coverage is used for detailed rules where possible.
 - Persona, preconditions, data setup, assertions, and cleanup are clear.
+- Data setup tries fixture, API, seed, or safe test database paths before reporting blockers.
 - Selectors are stable and user-oriented.
 - Assertions verify business-visible results.
 - The test avoids fixed sleeps and hidden ordering dependencies.

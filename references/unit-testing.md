@@ -60,7 +60,7 @@ Use strict Red-Green-Refactor for unit tests whenever behavior can be tested bef
 8. Refactor only with tests passing.
 9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
-If the Red test cannot be created or executed because a prerequisite is missing, report the exact blocker and resume only after the human confirms it is resolved.
+If the Red test cannot be created or executed because a prerequisite is missing, first try to create deterministic fake data through existing factories, builders, fixtures, or local test helpers. Report a blocker only when the dependency, rule, or safe data setup path is genuinely unavailable, then resume after the human confirms it is resolved.
 
 ## Test Design Rules
 
@@ -128,6 +128,19 @@ Avoid:
 
 Prefer real lightweight value objects, factories, or in-memory fakes when they make the test more representative without adding flakiness.
 
+## Test Data Setup
+
+Unit tests should not depend on ready-made seed data.
+
+Use this setup order by default:
+
+1. Existing project factory, builder, fixture, or test helper.
+2. Inline minimal fake data when the shape is simple and stable.
+3. In-memory fake for repositories, clocks, IDs, gateways, or external collaborators.
+4. A documented blocker only when the required rule, dependency contract, or safe fake data shape is unclear.
+
+Keep unit data minimal. Do not use live services, production data, real personal data, or real secrets.
+
 ## Frontend Unit And Component Tests
 
 Use unit or component tests for UI behavior that does not require a full browser journey:
@@ -140,7 +153,7 @@ Use unit or component tests for UI behavior that does not require a full browser
 - Mapping API data into view models.
 - Submitting the correct payload to a mocked boundary.
 
-Do not move every UI rule to E2E. Use E2E only for critical user flows and integration confidence.
+Do not move every UI rule to E2E. Use E2E for user workflows that need integration confidence.
 
 ## Coverage Closure
 
@@ -175,3 +188,4 @@ Before accepting unit tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
+- Missing ready-made data was not used as a blocker when a factory, fixture, builder, or fake could create it.

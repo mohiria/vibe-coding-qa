@@ -101,7 +101,7 @@ Runtime validation can support QA but does not close business coverage:
 - It can prove service startup, routing, login reachability, CLI availability, and deployment health.
 - It cannot replace unit tests for business rules.
 - It cannot replace API/integration tests for contracts, authorization, persistence, or data consistency.
-- It cannot replace E2E tests for critical user journeys with assertions.
+- It cannot replace E2E tests for user workflows with assertions.
 - It should be reported separately from Unit/API/E2E coverage artifacts.
 
 If runtime validation discovers a business defect, create or request an automated test at the lowest effective layer after classifying the failure.

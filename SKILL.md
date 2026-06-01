@@ -18,7 +18,7 @@ Follow this order by default:
 5. Before changing production code, confirm a valid Red test, reusable failing test, documented non-TDD exception, or exact prerequisite blocker.
 6. Generate or review unit tests first for core logic and business rules.
 7. Generate or review API/integration tests for service contracts, authorization, data consistency, and integration behavior.
-8. Generate or review E2E scenarios for critical user flows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
+8. Generate or review E2E scenarios for all in-scope user workflows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
 9. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
 10. Analyze regression impact for any changed requirements, code, or tests.
 11. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
@@ -30,7 +30,7 @@ Follow this order by default:
 TDD is the default organizing principle for this skill.
 
 - Use strict Red-Green-Refactor for unit tests and API/integration tests whenever the behavior can be tested before implementation.
-- Use scenario-first E2E design for user flows: define the persona, preconditions, path, assertions, data setup, and cleanup before implementation, but do not force E2E Red-Green when the UI or service is not runnable yet.
+- Use scenario-first E2E design for user workflows: enumerate personas, entry points, data states, permissions, lifecycle states, normal paths, denial paths, and recovery paths before implementation. Do not force E2E Red-Green when the UI or service is not runnable yet.
 - Every generated test must trace back to a Spec item, test point, risk, code path, API contract, or historical defect.
 - A test without a clear purpose, input or precondition, expected result, and assertion target is invalid.
 
@@ -53,7 +53,7 @@ Load only the reference needed for the current task.
 ## Mandatory Rules
 
 - Always perform lightweight test design before generating test scripts.
-- Every in-scope executable test point must be attempted in the current testing cycle. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute and record the coverage artifact.
+- Every in-scope executable test point must be attempted in the current testing cycle. If prerequisites are missing, first try to create deterministic test data through existing fixtures, factories, backend APIs, seed scripts, or safe test database helpers. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable.
 - Always run or require execution of newly added tests and modified tests.
 - Always explain why an existing test was modified.
 - Before modifying or deleting an existing test, state the requirement authority and whether the new requirement extends, amends, supersedes, or conflicts with the existing behavior baseline.
@@ -61,7 +61,8 @@ Load only the reference needed for the current task.
 - A Red test is valid only when it fails for the expected behavior reason. Syntax, import, test setup, fixture, or environment failures are blockers or setup failures, not Red evidence.
 - If strict TDD does not apply, record the reason, alternative validation, and remaining risk.
 - Prefer the lowest effective test layer: unit before API/integration, API/integration before E2E.
-- Do not use E2E to cover every detail; reserve E2E for critical user journeys and integration confidence.
+- Cover all in-scope user workflows at the E2E scenario level. Do not use E2E to exhaustively cover every field combination, branch, or API contract detail when a lower layer can prove it more reliably.
+- Test data setup is part of test design and execution. Missing ready-made seed data is not a blocker when local services, APIs, or a safe test database setup path can create the required data.
 - Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
 - Runtime QA validation is execution support and final availability smoke validation. It does not count as business test coverage and must not replace unit, API, or E2E testing.
 - Test conclusions must cite evidence: command output, response body, logs, screenshots, traces, reports, or CI output.

@@ -26,7 +26,7 @@ Before selecting regression tests, inspect:
 - API contract, data model, schema, configuration, or dependency changes.
 - Callers, imports, routes, consumers, and shared utilities affected by the change.
 - Existing test inventory across unit, API/integration, and E2E layers.
-- Historical defects, flaky areas, and critical user paths.
+- Historical defects, flaky areas, and user workflows.
 - CI constraints and local execution prerequisites.
 
 If impact cannot be determined from available context, report the missing source and ask for clarification. Do not claim low regression risk without explaining why.
@@ -37,7 +37,7 @@ Map each changed item to behavior and tests.
 
 | Changed item | What to check |
 | --- | --- |
-| Business rule | Unit tests for the rule, API tests that expose it, critical E2E path if user-visible. |
+| Business rule | Unit tests for the rule, API tests that expose it, E2E workflow coverage if user-visible. |
 | Validator or schema | Boundary and invalid cases, API error shape, form state if UI uses the rule. |
 | API route or controller | Contract tests, auth matrix, persistence side effects, consumers. |
 | Data model or migration | Constraints, defaults, queries, transactions, import/export, rollback risk. |
@@ -56,7 +56,7 @@ Classify regression risk before choosing the suite.
 | Risk | Signals | Required regression |
 | --- | --- | --- |
 | Low | Localized change, no shared dependency, no data/auth/API behavior, strong unit coverage. | New/modified tests, related unit tests, and directly affected old tests. |
-| Medium | API, DB, UI workflow, shared helper, or multi-module behavior changed. | Related unit tests, API/integration tests, and the critical E2E path if user-visible. |
+| Medium | API, DB, UI workflow, shared helper, or multi-module behavior changed. | Related unit tests, API/integration tests, and affected E2E user workflows if user-visible. |
 | High | Auth, money, compliance, data loss, migration, multi-tenant boundary, critical workflow, or historical defect area changed. | Module-level regression, core E2E paths, historical defect tests, and runtime QA validation if environment risk exists. |
 
 Raise risk when:
@@ -77,7 +77,7 @@ Select the lowest effective tests that prove old behavior still works:
 3. Run tests for callers and consumers of changed shared code.
 4. Run historical defect tests for touched behavior.
 5. Add representative API/integration tests when persistence, auth, or contract behavior is affected.
-6. Add focused E2E only for critical user journeys and cross-boundary confidence.
+6. Add E2E coverage for affected user workflows that need cross-boundary confidence.
 7. Use runtime QA validation only when a real environment must prove availability.
 
 Do not run a huge suite as a substitute for impact analysis when a targeted suite is available. Do not skip directly affected tests only because a broad suite passed elsewhere.
@@ -182,7 +182,7 @@ Before accepting regression coverage, verify:
 - Newly added and modified tests were executed.
 - Directly affected existing tests were executed.
 - Historical defect tests were included when relevant.
-- E2E selection is focused on critical paths, not broad duplication.
+- E2E selection covers affected user workflows without duplicating lower-layer rule detail.
 - Runtime validation is not counted as business coverage.
 - Failures were classified before changing code or tests.
 - Remaining risks and unresolved prerequisite blockers are explicit.

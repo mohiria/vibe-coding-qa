@@ -36,6 +36,22 @@ If the relationship is `conflicts`, do not change expected behavior, existing te
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | | Unit / API/integration / E2E | | | | P0 / P1 / P2 / P3 | |
 
+## User Scenario Matrix
+
+Use this section to enumerate user workflows before selecting or writing E2E tests. E2E covers user workflows, not every field combination or API contract variant.
+
+| Scenario | Persona / role | Entry point | Data state | Operation path | Outcome type | E2E coverage decision |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | Page / route / modal / deep link | Empty / existing / archived / submitted / approved / rejected / locked | Create / edit / delete / search / submit / approve / reject / export | Success / denial / validation stop / conflict / empty / recovery | Cover with E2E / Lower-layer only with reason / BLOCKED |
+
+## Test Data Plan
+
+Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state.
+
+| Test point / scenario | Required data state | Setup method | Isolation strategy | Cleanup method | Data blocker status |
+| --- | --- | --- | --- | --- | --- |
+| | | Fixture / factory / API / seed / safe test DB / fake data | Unique prefix / tenant / transaction / container / storage state | API cleanup / DB cleanup / rollback / unique residual data | Ready / BLOCKED with exact reason |
+
 ## TDD Candidates
 
 | Test point | Initial failing test | Why it should fail before implementation | Expected Red failure reason | Minimal behavior to pass | Related regression |
@@ -70,6 +86,8 @@ Before production code changes, each strict TDD candidate must have one of:
 ## Coverage Closure
 
 - [ ] Each in-scope executable test point has a coverage artifact after prerequisites are available.
+- [ ] In-scope user workflows were enumerated before selecting E2E tests.
+- [ ] Missing ready-made data was not used as a blocker when fixture, API, seed, fake, or safe test DB setup was available.
 - [ ] New or modified tests were executed and results were recorded.
 - [ ] Red tests failed for the expected behavior reason when strict TDD applies.
 - [ ] Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.
@@ -95,4 +113,4 @@ These examples are illustrative only. Replace them with project-specific behavio
 | Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Required name is rejected | Active field rule | Equivalence partitioning | Unit + API/integration | `name` is empty | Validation fails | Required-field error code and message | P0 | `src/entity-validator.test.ts#rejectsEmptyName` |
-| User without delete permission cannot delete an entity | Permission rule | Decision table | API/integration + E2E smoke | Current role lacks delete permission | Delete is rejected and entity remains | HTTP 403; UI action unavailable or disabled | P0 | `tests/entity-permission.test.ts#rejectsDeleteWithoutPermission` |
+| User without delete permission cannot delete an entity | Permission rule | Decision table | API/integration + E2E user workflow | Current role lacks delete permission | Delete is rejected and entity remains | HTTP 403; UI action unavailable or disabled | P0 | `tests/entity-permission.test.ts#rejectsDeleteWithoutPermission` |

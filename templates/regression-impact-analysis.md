@@ -21,7 +21,7 @@ Example only. Replace with project-specific behavior.
 | --- | --- | --- | --- | --- |
 | `EntityValidatorTest#allowsEmptyName` | Modify | `REQ-2026-014` field rule | Old expectation is replaced by the active requirement | Add `shouldRejectEmptyName` to cover the required-field rule |
 | `EntityPermissionApiTest#shouldRejectDeleteWithoutPermission` | Add | Permission rule | Cover API denial for users without delete permission | API layer covers HTTP 403 and unchanged data |
-| `entity-permission.spec.ts` | Add focused E2E smoke | Permission rule | Confirm the page delete entry is unavailable | E2E covers only the critical path, not every permission combination |
+| `entity-permission.spec.ts` | Add E2E user workflow | Permission rule | Confirm the page delete entry is unavailable | E2E covers the denied-delete workflow; detailed permission combinations stay at API/integration |
 
 ## Impact Analysis
 
@@ -29,7 +29,7 @@ Example only. Replace with project-specific behavior.
 | --- | --- | --- | --- | --- |
 | `EntityValidator` | Name validation during create and edit | `EntityValidatorTest` | Add empty-name rejection test | Unit is the lowest effective layer |
 | `DELETE /api/entities/{id}` | Delete permission and data consistency | `EntityPermissionApiTest` | Add API test for delete denial | Assert HTTP 403 and unchanged data |
-| Entity list page | Delete button visibility or disabled state | `entity-list.spec.ts` | Add focused E2E smoke | Cover only the critical no-permission path |
+| Entity list page | Delete button visibility or disabled state | `entity-list.spec.ts` | Add E2E user workflow | Cover the user-visible no-permission workflow |
 
 ## Risk Level
 
@@ -39,7 +39,7 @@ Example only. Replace with project-specific behavior.
 Example:
 
 - Risk: Medium
-- Rationale: Involves field validation, permission rules, and a page entry, but not migrations, money, or tenant boundaries; requires Unit + API/integration + focused E2E smoke.
+- Rationale: Involves field validation, permission rules, and a page entry, but not migrations, money, or tenant boundaries; requires Unit + API/integration + E2E user workflow coverage.
 
 ## Selected Regression Tests
 

@@ -64,16 +64,18 @@ Do not force strict TDD for:
 - One-time migration or maintenance scripts.
 - E2E flows when the UI or service cannot be run yet.
 
-For E2E work, use scenario-first design instead of mandatory Red-Green. Define the user role, preconditions, operation path, assertions, data setup, and cleanup before implementation or script generation.
+For E2E work, use scenario-first design instead of mandatory Red-Green. Enumerate the in-scope user workflows first, then define the user role, preconditions, operation path, assertions, data setup, and cleanup before implementation or script generation.
 
 Before changing production code, the agent must confirm one of the following:
 
 - A valid Red test was created or selected and failed for the expected behavior reason.
 - An existing failing test already proves the required behavior gap.
 - Strict TDD does not apply, with the reason, alternative validation, and residual risk recorded.
-- A prerequisite blocker prevents the Red test, with the exact missing dependency, account, service, permission, environment variable, plugin, seed data, or test framework reported.
+- A prerequisite blocker prevents the Red test, with the exact missing dependency, account, service, permission, environment variable, plugin, unsafe data setup path, or test framework reported.
 
 Syntax errors, import errors, test setup failures, fixture failures, missing dependencies, or environment failures do not count as valid Red evidence. They must be classified and fixed or reported before the Red phase can be considered complete.
+
+Missing ready-made seed data is not enough to claim a blocker. When local services, backend APIs, fixtures, factories, seed scripts, or a safe test database are available, the agent must prepare deterministic test data before execution. Report a blocker only when data cannot be created safely, required rules are unclear, or an external prerequisite is unavailable.
 
 ## Requirement Authority And Conflict Rule
 
@@ -138,8 +140,10 @@ Unit -> API/Integration -> E2E
 | --- | --- | --- |
 | Unit | Verify local rules and logic quickly. | Functions, methods, services, validators, reducers, component logic. |
 | API/Integration | Verify service contracts and connected behavior. | Controllers, endpoints, auth, DB writes, service integration, external-service boundaries. |
-| E2E | Verify critical user journeys. | Login, create/edit/search/approve/submit flows, cross-page behavior, role-specific paths. |
+| E2E | Verify in-scope user workflows across boundaries. | Login, create/edit/search/approve/submit flows, cross-page behavior, role-specific paths, state and permission workflows. |
 Do not push every scenario into E2E. If a rule can be verified reliably with a unit or API/integration test, prefer that lower layer.
+
+E2E should cover user workflows, not every implementation detail. Cover the workflows a user can take through the product, including important role, permission, lifecycle, empty, error, and recovery states. Keep detailed field combinations, API error variants, and pure logic at lower layers unless they are visible workflow risks.
 
 ## Required Execution Rules
 
@@ -151,6 +155,8 @@ Before submitting or declaring work complete:
 - Run additional regression tests based on impact and risk.
 - Close coverage for in-scope executable test points by recording coverage artifacts. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute.
 - Report any tests that could not be run and explain why.
+
+Before reporting a test as not run because of missing data, try the project's data setup options in this order: existing fixture/factory/helper, backend API setup, seed script, safe test database helper or direct test database setup. Do not write production data, use real personal data, or store real secrets in tests.
 
 If an existing test is modified, state the reason:
 
@@ -173,8 +179,8 @@ Use this default selection:
 | Risk | Required regression |
 | --- | --- |
 | Low | Related unit tests and local API/integration tests. |
-| Medium | Related unit tests, API/integration tests, and critical E2E path. |
-| High | Module-level regression, core E2E paths, and runtime QA validation if environment risk exists. |
+| Medium | Related unit tests, API/integration tests, and affected E2E user workflows when user-visible. |
+| High | Module-level regression, affected/core E2E user workflows, and runtime QA validation if environment risk exists. |
 
 Always include historical defect tests when the change touches the same behavior, field, endpoint, state, or user flow.
 
@@ -241,6 +247,7 @@ A change is not ready if:
 - New or modified tests fail.
 - Directly impacted old tests fail.
 - Any in-scope executable test point has no coverage artifact after required prerequisites are available.
+- Any in-scope E2E user workflow is left without scenario design or an explicit lower-layer-only justification.
 - A failing test was skipped without documented justification.
 - A test was weakened to match the implementation.
 - The implementation has no test for a core business rule, API contract, permission rule, state transition, or historical defect.

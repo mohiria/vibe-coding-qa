@@ -61,7 +61,7 @@ Use strict Red-Green-Refactor for API and integration behavior when the contract
 8. Refactor only with tests passing.
 9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
-If the Red test cannot be created or executed because a database, service, credential, plugin, account, seed, or permission is missing, report the exact blocker and resume only after the human confirms it is resolved.
+If the Red test cannot be created or executed because a database, service, credential, plugin, account, seed, or permission is missing, first try the project's deterministic setup path: fixture, factory, backend API setup, seed script, isolated test database, container, or safe DB helper. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable, then resume after the human confirms it is resolved.
 
 ## Contract Assertions
 
@@ -110,6 +110,16 @@ Data rules:
 - Prefer explicit setup over hidden global state.
 
 When testing persistence, assert the stored state when correctness depends on it. Response assertions alone are not enough for data consistency rules.
+
+Use this setup order by default:
+
+1. Existing fixture, factory, builder, or integration test helper.
+2. Backend API setup when it exercises a stable setup boundary and does not hide the behavior under test.
+3. Project-approved seed script.
+4. Isolated test database, transaction, container, or safe DB helper.
+5. Blocker only when the required state cannot be created safely or the data rules are unclear.
+
+Missing ready-made seed data is not a blocker if the required data can be created through these setup paths.
 
 ## Authorization And Permission Matrix
 
@@ -193,3 +203,4 @@ Before accepting API or integration tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
+- Missing ready-made data was not used as a blocker when fixture, API, seed, isolated DB, container, or safe DB setup was available.

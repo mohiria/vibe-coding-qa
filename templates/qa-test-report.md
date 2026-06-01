@@ -68,11 +68,27 @@ Use this section when strict Red-Green-Refactor is not applied.
 | E2E | | | PASS / FAIL / BLOCKED | |
 | Regression | | | PASS / FAIL / BLOCKED | |
 
+## User Scenario Coverage
+
+Use this section when E2E is in scope. E2E covers user workflows, not every field combination or API contract variant.
+
+| Scenario | Persona / role | Workflow covered | E2E artifact | Result | Notes |
+| --- | --- | --- | --- | --- | --- |
+| | | Entry point -> operation -> visible outcome | `path/to/e2e.spec.ts#test name` | COVERED / BLOCKED / LOWER-LAYER-ONLY | |
+
+## Test Data Setup Evidence
+
+Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state.
+
+| Test / scenario | Required data | Setup method | Cleanup | Evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| | | Fixture / factory / API / seed / safe test DB / fake data | API cleanup / DB cleanup / rollback / unique residual data | Command / response / log / test helper | READY / BLOCKED |
+
 ## Tests Not Run / Blockers
 
 | Test / scope | Reason not run | Exact blocker | Required owner action | Residual risk |
 | --- | --- | --- | --- | --- |
-| | BLOCKED / Not applicable | Missing account / service / permission / env var / seed / browser / dependency | | |
+| | BLOCKED / Not applicable | Missing account / service / permission / env var / unsafe data setup path / browser / dependency | | |
 
 ## Coverage Summary
 
@@ -112,6 +128,7 @@ Runtime QA validation is availability smoke evidence only. It does not count as 
 ## Remaining Risks
 
 - Uncovered test points:
+- Uncovered user workflow scenarios:
 - Unresolved prerequisite blockers:
 - Requirement authority conflicts:
 - Known flaky areas:

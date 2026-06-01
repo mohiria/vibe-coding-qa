@@ -26,6 +26,7 @@ Collect or inspect the available inputs before designing tests:
 - Data model, field rules, entity relationships, status definitions, and CRUD matrix.
 - API contract, request/response schema, error code convention, auth rules, and integration boundaries.
 - UI design, page states, component behavior, user roles, and user paths.
+- User workflow inventory: personas, entry points, lifecycle states, permissions, normal paths, denial paths, recovery paths, and cleanup needs.
 - Existing code, changed code, dependency graph, and configuration.
 - Existing tests, historical defects, production incidents, and flaky areas.
 - Test environment, test data, credentials, mocks, and CI constraints.
@@ -54,6 +55,7 @@ Extract test points from multiple sources. Do not rely on only one source.
 | CRUD matrix    | Create, read, update, delete, disable, archive, restore, pagination, filtering, sorting, permissions.   |
 | API contract   | Method, path, request schema, response schema, status codes, error shape, auth, idempotency.            |
 | UI design      | Initial/loading/empty/success/error states, form rules, disabled states, modal behavior, navigation.    |
+| User workflow  | Persona, entry point, precondition data, operation path, state change, visible result, recovery path.   |
 | Code structure | Branches, conditions, exceptions, state transitions, validators, side effects, integration calls.       |
 | Change diff    | Directly changed behavior, dependent modules, shared utilities, impacted endpoints and pages.           |
 | History        | Past bugs, flaky tests, high-risk modules, escaped defects, production incidents.                       |
@@ -129,11 +131,13 @@ Choose the lowest effective layer.
 | API request validation, auth, response shape, error code             | API/integration                 | Verify contract and observable service behavior.                            |
 | Data persistence, uniqueness, transaction, query behavior            | API/integration                 | Use real or isolated test database when correctness depends on persistence. |
 | Frontend component state, form validation, disabled/enabled rules    | Unit/component                  | Do not use E2E for every UI rule.                                           |
-| Critical user path across pages and services                         | E2E                             | Keep focused on P0/P1 paths.                                                |
+| User workflow across pages and services                              | E2E                             | Cover all in-scope user workflows at scenario level.                        |
 | Cross-role or multi-user workflow                                    | E2E                             | Use isolated roles, profiles, and deterministic data.                       |
 | Existing behavior affected by change                                 | Regression through Unit/API/E2E | Select old automated tests by impact and risk.                              |
 
 If a test can be reliable at a lower layer, do not move it to E2E just because E2E is available.
+
+E2E coverage means workflow coverage, not exhaustive rule coverage. Use E2E for each in-scope user workflow, including important role, permission, lifecycle, empty, error, and recovery states. Keep field-combination detail, API contract variants, and pure branching at unit or API/integration layers unless the variation changes a user-visible workflow.
 
 ## Lightweight Test Design Format
 
@@ -160,7 +164,7 @@ Example only. Replace these rows with project-specific behavior. Use Chinese for
 | Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Entity name is required | Active field rule | Equivalence partitioning | Unit + API/integration | `name` is empty | Validation fails | Required-field error code and message | P0 | Initially empty; fill after execution, such as `backend/src/test/java/.../EntityValidatorTest.java#shouldRejectEmptyName` |
-| User without delete permission cannot delete entity | Permission rule | Decision table | API/integration + E2E smoke | Current role lacks delete permission | Delete is rejected and page cannot delete | HTTP 403; delete button hidden or disabled | P0 | Initially empty; fill after execution, such as `backend/src/test/java/.../EntityPermissionApiTest.java#shouldRejectDeleteWithoutPermission` |
+| User without delete permission cannot delete entity | Permission rule | Decision table | API/integration + E2E user workflow | Current role lacks delete permission | Delete is rejected and page cannot delete | HTTP 403; delete button hidden or disabled | P0 | Initially empty; fill after execution, such as `backend/src/test/java/.../EntityPermissionApiTest.java#shouldRejectDeleteWithoutPermission` |
 
 ## From Analysis to TDD
 
@@ -204,6 +208,20 @@ For E2E, record scenario-first design:
 
 For E2E, `Coverage artifact` may remain empty during scenario design. After a browser E2E test exists, update it with the project-root relative path. Scenario-first design is valid even before the E2E test file exists.
 
+## User Scenario Matrix
+
+Build the user scenario matrix before deciding E2E scope. Include every in-scope workflow a real user can perform through the product surface affected by the change.
+
+Use these dimensions:
+
+- Persona, role, permission, tenant, ownership, or account state.
+- Entry point, deep link, navigation path, modal, wizard, or cross-page flow.
+- Data state: empty, existing, duplicate, archived, disabled, deleted, submitted, approved, rejected, expired, or locked.
+- Operation: create, read, update, delete, disable, archive, restore, search, filter, sort, import, export, submit, approve, reject, assign, or notify.
+- Outcome: success, validation stop, permission denial, conflict, empty state, retry, recovery, or audit-visible result.
+
+For each matrix row, decide the coverage layer. E2E must cover the user workflows in scope for the change. Lower layers should cover detailed validation classes, API status variants, database constraints, and branch combinations.
+
 ## Data Model and Test Data Design
 
 Data model analysis supplements test-point extraction. It should not be skipped.
@@ -224,9 +242,21 @@ Define test data strategy:
 - Use unique test data names or prefixes.
 - Make data creation repeatable.
 - Make cleanup explicit.
-- Prefer API setup for E2E when possible.
+- Prefer existing fixtures, factories, or test helpers when they are already established.
+- Prefer backend API setup for E2E when it does not skip the behavior under test.
+- Use seed scripts or safe test database helpers when API setup cannot create the required lifecycle state, permission state, or relationship.
 - Use isolated database, transaction rollback, containers, or seed scripts when practical.
 - Never use real credentials or production data.
+
+For each test point, record:
+
+- Required data state.
+- Data creation method.
+- Isolation key, unique prefix, tenant, or transaction boundary.
+- Cleanup method.
+- Whether data setup is part of the behavior under test or only a precondition.
+
+Missing ready-made data is not a blocker when it can be created through project fixtures, factories, APIs, seed scripts, or a safe test database. A data blocker is valid only when no safe setup path exists, the needed data rules are unclear, a required credential or permission is missing, or the target environment must not be mutated.
 
 ## Execution Support
 
@@ -244,7 +274,7 @@ Before execution, perform prerequisite checks:
 - Required seed data, fixture, or mock service is available.
 - Required command and test framework are available.
 
-If a prerequisite is missing, do not mark the test as optional or resolved without execution. Report the blocker to the human owner, include the exact requirement, and resume execution after the human confirms the blocker is resolved.
+If a prerequisite is missing, do not mark the test as optional or resolved without execution. For missing data, first attempt deterministic setup through the project data setup options. Report the blocker to the human owner only after the safe setup options are unavailable or insufficient, include the exact requirement, and resume execution after the human confirms the blocker is resolved.
 
 ## Coverage Closure
 
@@ -302,10 +332,12 @@ Before generating scripts, verify:
 - Data model and API contract were checked when relevant.
 - Test points were mapped to appropriate layers.
 - Unit/API tests were preferred before E2E when sufficient.
+- E2E user workflows were enumerated before selecting browser tests.
 - TDD candidates were identified.
 - E2E scenarios have persona, path, assertion, data, and cleanup.
 - Regression risks were identified for changed behavior.
 - Test data setup and cleanup are clear.
+- Missing ready-made data was not used as a blocker when API, fixture, seed, or safe test DB setup was available.
 - No test point relies on real secrets or production data.
 
 After creating or executing tests, verify:
