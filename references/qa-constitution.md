@@ -77,6 +77,8 @@ Syntax errors, import errors, test setup failures, fixture failures, missing dep
 
 Missing ready-made seed data is not enough to claim a blocker. When local services, backend APIs, fixtures, factories, seed scripts, or a safe test database are available, the agent must prepare deterministic test data before execution. Report a blocker only when data cannot be created safely, required rules are unclear, or an external prerequisite is unavailable.
 
+Test data must be realistic synthetic business data. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records. Minimal synthetic data is allowed only for pure technical boundary tests when the business shape is irrelevant, and the exception must be recorded.
+
 ## Requirement Authority And Conflict Rule
 
 Expected behavior must come from the best available authority, not blindly from either old Spec documents or the current implementation.
@@ -156,7 +158,7 @@ Before submitting or declaring work complete:
 - Close coverage for in-scope executable test points by recording coverage artifacts. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute.
 - Report any tests that could not be run and explain why.
 
-Before reporting a test as not run because of missing data, try the project's data setup options in this order: existing fixture/factory/helper, backend API setup, seed script, safe test database helper or direct test database setup. Do not write production data, use real personal data, or store real secrets in tests.
+Before reporting a test as not run because of missing data, try the project's data setup options in this order: existing fixture/factory/helper, backend API setup, seed script, safe test database helper or direct test database setup. Use realistic synthetic business data for created records. Do not write production data, use real personal data, or store real secrets in tests.
 
 If an existing test is modified, state the reason:
 
@@ -214,6 +216,7 @@ Prerequisites
 The following are forbidden:
 
 - Tests that only assert that code "does not throw" when specific behavior should be checked.
+- Tests that use meaningless placeholder business data where realistic synthetic data is required.
 - API tests that only assert HTTP 200 without validating response body, error shape, or data state.
 - E2E tests that only check that a page loads when a business result should be verified.
 - Removing assertions to make tests pass.

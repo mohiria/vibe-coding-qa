@@ -78,11 +78,11 @@ Use this section when E2E is in scope. E2E covers user workflows, not every fiel
 
 ## Test Data Setup Evidence
 
-Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state.
+Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state. Use realistic synthetic business data; obvious placeholder data is invalid unless a pure technical assertion records a minimal-data exception.
 
-| Test / scenario | Required data | Setup method | Cleanup | Evidence | Status |
-| --- | --- | --- | --- | --- | --- |
-| | | Fixture / factory / API / seed / safe test DB / fake data | API cleanup / DB cleanup / rollback / unique residual data | Command / response / log / test helper | READY / BLOCKED |
+| Test / scenario | Required data | Business realism evidence | Setup method | Cleanup | Evidence | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | Domain rule / persona / lifecycle / tenant / permission / workflow evidence | Fixture / factory / API / seed / safe test DB / realistic synthetic data | API cleanup / DB cleanup / rollback / unique residual data | Command / response / log / test helper | READY / BLOCKED |
 
 ## Tests Not Run / Blockers
 

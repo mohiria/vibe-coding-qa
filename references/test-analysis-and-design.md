@@ -242,6 +242,9 @@ Define test data strategy:
 - Use unique test data names or prefixes.
 - Make data creation repeatable.
 - Make cleanup explicit.
+- Use realistic synthetic business data that fits the product domain, workflow, role, tenant, lifecycle state, and field constraints.
+- Keep related fields coherent: dates, amounts, statuses, ownership, permissions, approval states, tenant boundaries, and relationships must not contradict each other.
+- Avoid obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
 - Prefer existing fixtures, factories, or test helpers when they are already established.
 - Prefer backend API setup for E2E when it does not skip the behavior under test.
 - Use seed scripts or safe test database helpers when API setup cannot create the required lifecycle state, permission state, or relationship.
@@ -252,11 +255,14 @@ For each test point, record:
 
 - Required data state.
 - Data creation method.
+- Business realism basis: which business rule, lifecycle state, persona, tenant, product domain, or real workflow makes the data plausible.
 - Isolation key, unique prefix, tenant, or transaction boundary.
 - Cleanup method.
 - Whether data setup is part of the behavior under test or only a precondition.
 
 Missing ready-made data is not a blocker when it can be created through project fixtures, factories, APIs, seed scripts, or a safe test database. A data blocker is valid only when no safe setup path exists, the needed data rules are unclear, a required credential or permission is missing, or the target environment must not be mutated.
+
+Minimal synthetic data is acceptable for pure technical boundary tests only when the business shape cannot affect the assertion. Record the reason in the test data plan; otherwise, placeholder-looking data is a test design defect.
 
 ## Execution Support
 
@@ -337,6 +343,7 @@ Before generating scripts, verify:
 - E2E scenarios have persona, path, assertion, data, and cleanup.
 - Regression risks were identified for changed behavior.
 - Test data setup and cleanup are clear.
+- Test data uses realistic synthetic business records or records an explicit minimal-data exception.
 - Missing ready-made data was not used as a blocker when API, fixture, seed, or safe test DB setup was available.
 - No test point relies on real secrets or production data.
 

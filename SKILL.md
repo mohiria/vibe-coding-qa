@@ -63,6 +63,7 @@ Load only the reference needed for the current task.
 - Prefer the lowest effective test layer: unit before API/integration, API/integration before E2E.
 - Cover all in-scope user workflows at the E2E scenario level. Do not use E2E to exhaustively cover every field combination, branch, or API contract detail when a lower layer can prove it more reliably.
 - Test data setup is part of test design and execution. Missing ready-made seed data is not a blocker when local services, APIs, or a safe test database setup path can create the required data.
+- Test data must be realistic synthetic business data: plausible names, statuses, dates, amounts, ownership, permissions, and relationships that fit the product domain. Obvious placeholder data is invalid unless the test only proves a technical boundary and records why business realism does not affect the assertion.
 - Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
 - Runtime QA validation is execution support and final availability smoke validation. It does not count as business test coverage and must not replace unit, API, or E2E testing.
 - Test conclusions must cite evidence: command output, response body, logs, screenshots, traces, reports, or CI output.

@@ -46,11 +46,11 @@ Use this section to enumerate user workflows before selecting or writing E2E tes
 
 ## Test Data Plan
 
-Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state.
+Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state. Use realistic synthetic business data; obvious placeholder data is invalid unless a pure technical assertion records a minimal-data exception.
 
-| Test point / scenario | Required data state | Setup method | Isolation strategy | Cleanup method | Data blocker status |
-| --- | --- | --- | --- | --- | --- |
-| | | Fixture / factory / API / seed / safe test DB / fake data | Unique prefix / tenant / transaction / container / storage state | API cleanup / DB cleanup / rollback / unique residual data | Ready / BLOCKED with exact reason |
+| Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | Domain rule / persona / lifecycle / tenant / permission / workflow basis | Fixture / factory / API / seed / safe test DB / realistic synthetic data | Unique prefix / tenant / transaction / container / storage state | API cleanup / DB cleanup / rollback / unique residual data | Ready / BLOCKED with exact reason |
 
 ## TDD Candidates
 
@@ -87,7 +87,8 @@ Before production code changes, each strict TDD candidate must have one of:
 
 - [ ] Each in-scope executable test point has a coverage artifact after prerequisites are available.
 - [ ] In-scope user workflows were enumerated before selecting E2E tests.
-- [ ] Missing ready-made data was not used as a blocker when fixture, API, seed, fake, or safe test DB setup was available.
+- [ ] Test data uses realistic synthetic business records or records an explicit minimal-data exception.
+- [ ] Missing ready-made data was not used as a blocker when fixture, API, seed, realistic synthetic data, or safe test DB setup was available.
 - [ ] New or modified tests were executed and results were recorded.
 - [ ] Red tests failed for the expected behavior reason when strict TDD applies.
 - [ ] Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.

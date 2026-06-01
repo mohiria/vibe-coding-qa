@@ -175,7 +175,9 @@ function isPlaceholderCell(cell) {
     /^create \/ edit \/ delete \/ search \/ submit \/ approve \/ reject \/ export$/i,
     /^success \/ denial \/ validation stop \/ conflict \/ empty \/ recovery$/i,
     /^cover with e2e \/ lower-layer only with reason \/ blocked$/i,
-    /^fixture \/ factory \/ api \/ seed \/ safe test db \/ fake data$/i,
+    /^fixture \/ factory \/ api \/ seed \/ safe test db \/ realistic synthetic data$/i,
+    /^domain rule \/ persona \/ lifecycle \/ tenant \/ permission \/ workflow basis$/i,
+    /^domain rule \/ persona \/ lifecycle \/ tenant \/ permission \/ workflow evidence$/i,
     /^unique prefix \/ tenant \/ transaction \/ container \/ storage state$/i,
     /^api cleanup \/ db cleanup \/ rollback \/ unique residual data$/i,
     /^ready \/ blocked with exact reason$/i,
@@ -223,6 +225,48 @@ function sectionHasNonPlaceholderTableRow(section) {
 
 function sectionHasIncompleteRowWithValue(section, valuePattern) {
   return tableRows(section).some((row) => rowContainsValue(row, valuePattern) && !rowHasNonPlaceholderContent(row));
+}
+
+function sectionHeaderCells(section) {
+  const headerRow = (section || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.startsWith('|') && line.endsWith('|'));
+
+  if (!headerRow) {
+    return [];
+  }
+
+  return headerRow
+    .split('|')
+    .slice(1, -1)
+    .map((cell) => cell.trim());
+}
+
+function tableColumnIndex(section, columnName) {
+  return sectionHeaderCells(section).findIndex((cell) => cell.toLowerCase() === columnName.toLowerCase());
+}
+
+function sectionHasNonPlaceholderColumnValue(section, columnName) {
+  const columnIndex = tableColumnIndex(section, columnName);
+  if (columnIndex < 0) {
+    return false;
+  }
+
+  return tableRows(section).some((row) => {
+    const cells = row
+      .split('|')
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+    const cell = cells[columnIndex] || '';
+    return !isPlaceholderCell(cell);
+  });
+}
+
+function requireColumn(findings, templateName, section, sectionName, columnName) {
+  if (tableColumnIndex(section, columnName) < 0) {
+    addFinding(findings, 'FAIL', templateName, `${sectionName} missing required column "${columnName}"`);
+  }
 }
 
 function addFinding(findings, level, templateName, message) {
@@ -274,6 +318,10 @@ function checkQaTestReport(content) {
   const testDataSetupEvidence = getSection(content, 'Test Data Setup Evidence');
   if (!sectionHasNonPlaceholderTableRow(testDataSetupEvidence)) {
     addFinding(findings, 'WARN', templateName, 'Test Data Setup Evidence has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, testDataSetupEvidence, 'Test Data Setup Evidence', 'Business realism evidence');
+  if (!sectionHasNonPlaceholderColumnValue(testDataSetupEvidence, 'Business realism evidence')) {
+    addFinding(findings, 'FAIL', templateName, 'Test Data Setup Evidence has no business realism evidence');
   }
 
   const tddSummary = getSection(content, 'TDD Summary');
@@ -336,6 +384,10 @@ function checkLightweightTestDesign(content) {
   const testDataPlan = getSection(content, 'Test Data Plan');
   if (!sectionHasNonPlaceholderTableRow(testDataPlan)) {
     addFinding(findings, 'WARN', templateName, 'Test Data Plan has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, testDataPlan, 'Test Data Plan', 'Business realism basis');
+  if (!sectionHasNonPlaceholderColumnValue(testDataPlan, 'Business realism basis')) {
+    addFinding(findings, 'FAIL', templateName, 'Test Data Plan has no business realism basis');
   }
 
   const conflictGate = getSection(content, 'Requirement Authority / Conflict Gate');

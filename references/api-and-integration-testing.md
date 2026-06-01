@@ -103,6 +103,9 @@ Use the project convention first:
 Data rules:
 
 - Use unique names, IDs, or prefixes for created records.
+- Use realistic synthetic business records that satisfy product-domain rules, lifecycle state, ownership, permissions, and relationship constraints.
+- Keep request payloads, persisted state, and expected side effects coherent; do not combine impossible statuses, dates, owners, tenants, or approval states.
+- Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text in business-facing records.
 - Do not depend on production data.
 - Do not use real secrets or personal data.
 - Keep setup close to the test unless shared fixtures are already established.
@@ -203,4 +206,5 @@ Before accepting API or integration tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
+- Test data is realistic synthetic business data, or a minimal-data exception is documented for pure technical assertions.
 - Missing ready-made data was not used as a blocker when fixture, API, seed, isolated DB, container, or safe DB setup was available.

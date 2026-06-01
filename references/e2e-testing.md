@@ -123,6 +123,8 @@ Prefer:
 - Existing project fixtures, factories, seed helpers, storage-state helpers, or test data builders.
 - API setup over slow UI setup when it does not skip the behavior under test.
 - Safe test database setup when API setup cannot create the required lifecycle, permission, or relationship state.
+- Realistic synthetic business data that a real user could recognize in the product context.
+- Coherent personas, tenant ownership, lifecycle states, dates, amounts, permissions, and related records.
 - Unique names, IDs, or prefixes.
 - Dedicated test roles and tenants.
 - Isolated fixtures or seed data.
@@ -133,6 +135,7 @@ Avoid:
 
 - Production data.
 - Real secrets in test code.
+- Obvious placeholder records such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text.
 - Shared mutable records without cleanup.
 - Test ordering dependencies.
 - Hidden dependency on a previous test.
@@ -203,6 +206,7 @@ Before accepting E2E tests, verify:
 - The in-scope user workflows were enumerated before selecting tests.
 - Lower-layer coverage is used for detailed rules where possible.
 - Persona, preconditions, data setup, assertions, and cleanup are clear.
+- Test data is realistic synthetic business data and matches the user workflow being tested.
 - Data setup tries fixture, API, seed, or safe test database paths before reporting blockers.
 - Selectors are stable and user-oriented.
 - Assertions verify business-visible results.
