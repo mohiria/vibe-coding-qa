@@ -1,5 +1,7 @@
 ﻿# Bug Report
 
+Replace or delete all example rows before using this artifact for a real project.
+
 ## Summary
 
 - Title:
@@ -71,6 +73,13 @@ Do not record secrets, real user data, credentials, or full sensitive logs.
 - Add `entity:delete` permission enforcement at the delete service or API boundary.
 - Ensure denied requests do not mutate data.
 - Keep the error response shape consistent with existing permission errors.
+
+## Effective Resolution Pattern
+
+- Final effective fix:
+- Why it fixed the root cause:
+- Ineffective attempts or rejected fixes:
+- Future trigger for similar checks:
 
 ## Test Reinforcement
 

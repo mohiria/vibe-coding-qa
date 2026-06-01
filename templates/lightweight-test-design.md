@@ -2,6 +2,8 @@
 
 Purpose: decide what to test, which layer should cover it, what data is needed, what existing behavior may regress, and what must exist before production code changes. Keep final execution evidence in the QA test report.
 
+Replace or delete all example rows before using this artifact for a real project.
+
 ## Context
 
 - Requirement / Spec:
@@ -47,6 +49,7 @@ Use when E2E is in scope. Enumerate user workflows before selecting browser test
 ## Test Data Plan
 
 Plan deterministic setup, isolation, cleanup, and realistic synthetic business data.
+For unit-level pure technical assertions only, record a minimal-data exception in `Business realism basis`. API/integration and E2E rows must use realistic synthetic business data.
 
 | Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -98,6 +101,8 @@ Use for selected workflow-level E2E scenarios. Detailed field and API variants s
 - Uncovered planned test points or blockers:
 
 ## Short Examples
+
+Delete this section or replace it with project-specific rows before finalizing the artifact.
 
 Example test point:
 

@@ -78,7 +78,7 @@ Syntax errors, import errors, test setup failures, fixture failures, missing dep
 
 Missing ready-made seed data is not enough to claim a blocker. When local services, backend APIs, fixtures, factories, seed scripts, or a safe test database are available, the agent must prepare deterministic test data before execution. Report a blocker only when data cannot be created safely, required rules are unclear, or an external prerequisite is unavailable.
 
-Test data must be realistic synthetic business data. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records. Minimal synthetic data is allowed only for pure technical boundary tests when the business shape is irrelevant, and the exception must be recorded.
+Test data must be realistic synthetic business data when the assertion depends on business meaning. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when the exception is recorded and business realism cannot affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
 
 ## Requirement Authority And Conflict Rule
 
@@ -104,6 +104,10 @@ If the gate finds `conflicts`, the agent may continue read-only analysis, list c
 ## Test Design Before Scripts
 
 AI must perform lightweight test design before generating test scripts.
+
+For small behavior changes, the lightweight design may be minimal and embedded in the working notes or QA output, but it must still record the requirement source, representative test point, TDD Red evidence or documented exception/blocker, and initial regression impact.
+
+Test points should be representative, not mechanically exhaustive. Use equivalence partitioning, boundary value analysis, decision tables, state transition testing, user workflow analysis, and risk signals to decide the in-scope executable set. Once a test point is in scope and executable, it must be attempted, explicitly blocked, or marked not applicable with a reason.
 
 A test script is invalid if it does not have:
 

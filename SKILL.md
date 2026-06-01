@@ -13,7 +13,7 @@ Follow this order by default:
 
 1. Read `references/qa-constitution.md` for the mandatory testing principles.
 2. Analyze the Spec, PRD, data model, API contract, code structure, and code changes.
-3. Read `references/test-analysis-and-design.md` and create a lightweight test design, including requirement authority checks, test points, TDD candidates, E2E scenarios, test data plan, and initial regression impact for changed existing behavior.
+3. Read `references/test-analysis-and-design.md` and create a lightweight test design, including requirement authority checks, representative test points, TDD candidates, E2E scenarios, test data plan, and initial regression impact for changed existing behavior. Small changes may use a minimal lightweight design, but it must still record the requirement source, test point, TDD Red evidence or exception/blocker, and regression impact.
 4. Classify each test point into the right coverage layer: unit, API/integration, or E2E.
 5. Before changing production code, confirm a valid Red test, reusable failing test, documented non-TDD exception, or exact prerequisite blocker.
 6. Generate or review unit tests first for core logic and business rules.
@@ -52,8 +52,8 @@ Load only the reference needed for the current task.
 
 ## Mandatory Rules
 
-- Always perform lightweight test design before generating test scripts.
-- Every in-scope executable test point must be attempted in the current testing cycle. If prerequisites are missing, first try to create deterministic test data through existing fixtures, factories, backend APIs, seed scripts, or safe test database helpers. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable.
+- Always perform lightweight test design before generating test scripts. Small behavior changes may use a minimal lightweight design, but it must still identify the requirement source, test point, TDD Red evidence or exception/blocker, and regression impact.
+- Every in-scope executable test point must be attempted in the current testing cycle. Select representative test points through equivalence classes, boundary values, decision tables, state transitions, and risk analysis; do not create meaningless combination explosions. If prerequisites are missing, first try to create deterministic test data through existing fixtures, factories, backend APIs, seed scripts, or safe test database helpers. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable.
 - Always run or require execution of newly added tests and modified tests.
 - Test execution scope must combine design coverage and regression coverage. Run or explicitly block every in-scope executable item from the lightweight test design, its regression impact section, and any separate regression impact analysis used for complex changes. A single command may cover multiple items, but the final report must map the source as `Design`, `Regression`, or `Both`.
 - Always explain why an existing test was modified.
@@ -64,7 +64,7 @@ Load only the reference needed for the current task.
 - Prefer the lowest effective test layer: unit before API/integration, API/integration before E2E.
 - Cover all in-scope user workflows at the E2E scenario level. Do not use E2E to exhaustively cover every field combination, branch, or API contract detail when a lower layer can prove it more reliably.
 - Test data setup is part of test design and execution. Missing ready-made seed data is not a blocker when local services, APIs, or a safe test database setup path can create the required data.
-- Test data must be realistic synthetic business data: plausible names, statuses, dates, amounts, ownership, permissions, and relationships that fit the product domain. Obvious placeholder data is invalid unless the test only proves a technical boundary and records why business realism does not affect the assertion.
+- Test data must be realistic synthetic business data when the assertion depends on business meaning: plausible names, statuses, dates, amounts, ownership, permissions, and relationships that fit the product domain. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when they record why business realism does not affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Obvious placeholder data is invalid for business-facing records.
 - Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
 - Runtime QA validation is execution support and final availability smoke validation. It does not count as business test coverage and must not replace unit, API, or E2E testing.
 - Test conclusions must cite evidence: command output, response body, logs, screenshots, traces, reports, or CI output.
@@ -88,4 +88,4 @@ Final QA reports should use structured evidence summaries instead of long raw lo
 
 Use `scripts/qa_artifacts.mjs` only for deterministic template generation. It must not decide test scope, evaluate quality, or replace engineering judgment.
 
-Use `scripts/qa_artifacts.mjs check <template-name> <artifact-path>` for deterministic artifact structure checks. It checks required sections, placeholder content, and evidence fields. It must not decide QA scope, evaluate test quality, execute tests, or replace engineering judgment.
+Use `scripts/qa_artifacts.mjs check <template-name> <artifact-path>` for deterministic artifact structure checks. It supports `lightweight-test-design`, `qa-test-report`, `regression-impact-analysis`, and `bug-report`. It checks required sections, placeholder content, evidence fields, and obvious retained examples. It must not decide QA scope, evaluate test quality, execute tests, or replace engineering judgment.

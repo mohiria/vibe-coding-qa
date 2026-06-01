@@ -123,7 +123,7 @@ Prefer:
 - Existing project fixtures, factories, seed helpers, storage-state helpers, or test data builders.
 - API setup over slow UI setup when it does not skip the behavior under test.
 - Safe test database setup when API setup cannot create the required lifecycle, permission, or relationship state.
-- Realistic synthetic business data that a real user could recognize in the product context.
+- Realistic synthetic business data that a real user could recognize in the product context. The unit-test minimal-data exception does not apply to E2E tests.
 - Coherent personas, tenant ownership, lifecycle states, dates, amounts, permissions, and related records.
 - Unique names, IDs, or prefixes.
 - Dedicated test roles and tenants.

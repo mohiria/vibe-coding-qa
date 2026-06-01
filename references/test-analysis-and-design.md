@@ -17,7 +17,7 @@ Spec / PRD / data model / API contract / code change
 -> test script or validation action
 ```
 
-This design can be brief, but it must exist. It replaces heavy traditional test-case management while preserving real testing discipline.
+This design can be brief, but it must exist. For small behavior changes, a minimal lightweight design is acceptable when it records the requirement source, representative test point, TDD Red evidence or exception/blocker, and initial regression impact. It replaces heavy traditional test-case management while preserving real testing discipline.
 
 ## Inputs
 
@@ -36,18 +36,20 @@ If a required input is missing and the missing information changes expected beha
 
 ## Requirement Conflict Gate
 
-Use this gate before extracting or changing test points for already implemented behavior:
+Use this gate before extracting or changing test points for already implemented behavior. The full rule lives in `references/qa-constitution.md`; this section is a summary and must not weaken it.
 
 1. Identify active requirement sources: Spec, PRD, issue, acceptance criteria, API contract, or explicit user confirmation.
 2. Identify the existing behavior baseline: existing tests, current implementation, public API contract, data model, migrations, old Specs, and production-compatible behavior.
 3. Classify the relationship between the active requirement and the baseline as `extends`, `amends`, `supersedes`, or `conflicts`.
 4. If the relationship is `conflicts`, stop changing test expectations, tests, or production code for the disputed behavior and request clarification or cite a clear decision authority.
 
-Use the active requirement as change authority only for explicitly changed behavior. Preserve existing behavior coverage unless the new authority clearly amends or supersedes it.
+Use the active requirement as change authority only for explicitly changed behavior. Preserve existing behavior coverage unless the new authority clearly amends or supersedes it. When the relationship is `conflicts`, stop changing expected behavior, tests, and production code for the disputed behavior until explicit authority is available.
 
 ## Analysis Sources
 
 Extract test points from multiple sources. Do not rely on only one source.
+
+Test point selection should create representative coverage, not meaningless combination explosions. Use equivalence classes, boundaries, decision tables, state transitions, workflow paths, and risk signals to decide the in-scope executable set. Once selected, every in-scope executable test point must be attempted, explicitly blocked, or marked not applicable with a reason.
 
 | Source         | What to extract                                                                                         |
 | -------------- | ------------------------------------------------------------------------------------------------------- |
@@ -253,7 +255,9 @@ Define test data strategy:
 - Use unique test data names or prefixes.
 - Make data creation repeatable.
 - Make cleanup explicit.
-- Use realistic synthetic business data that fits the product domain, workflow, role, tenant, lifecycle state, and field constraints.
+- Use realistic synthetic business data that fits the product domain, workflow, role, tenant, lifecycle state, and field constraints when business meaning affects the assertion.
+- For unit tests of pure technical boundaries, simple formatters, mappers, or non-business assertions, minimal synthetic data is acceptable when the exception is recorded.
+- For API/integration and E2E tests, keep realistic synthetic business data.
 - Keep related fields coherent: dates, amounts, statuses, ownership, permissions, approval states, tenant boundaries, and relationships must not contradict each other.
 - Avoid obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
 - Prefer existing fixtures, factories, or test helpers when they are already established.
@@ -363,7 +367,7 @@ Before generating scripts, verify:
 - Regression risks were identified for changed behavior.
 - Initial regression impact was recorded in the lightweight design, including existing tests to rerun or the reason none are needed.
 - Test data setup and cleanup are clear.
-- Test data uses realistic synthetic business records or records an explicit minimal-data exception.
+- Test data uses realistic synthetic business records, or records an explicit minimal-data exception for unit-level pure technical assertions.
 - Missing ready-made data was not used as a blocker when API, fixture, seed, or safe test DB setup was available.
 - No test point relies on real secrets or production data.
 

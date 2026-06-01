@@ -267,6 +267,51 @@ function sectionHasNonPlaceholderColumnValue(section, columnName) {
   });
 }
 
+function sectionHasFilledField(section, fieldName) {
+  if (!section) {
+    return false;
+  }
+
+  const escapedFieldName = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^-\\s*${escapedFieldName}:\\s*(.+)$`, 'im');
+  const match = section.match(pattern);
+  if (!match) {
+    return false;
+  }
+
+  return !isPlaceholderCell(match[1]);
+}
+
+function sectionHasNonEmptyField(section, fieldName) {
+  if (!section) {
+    return false;
+  }
+
+  const escapedFieldName = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^-\\s*${escapedFieldName}:\\s*(.+)$`, 'im');
+  const match = section.match(pattern);
+  return Boolean(match && match[1].trim());
+}
+
+function sectionHasValueInNonPlaceholderRow(section, columnName) {
+  const columnIndex = tableColumnIndex(section, columnName);
+  if (columnIndex < 0) {
+    return false;
+  }
+
+  return tableRows(section).some((row) => {
+    if (!rowHasNonPlaceholderContent(row)) {
+      return false;
+    }
+
+    const cells = row
+      .split('|')
+      .slice(1, -1)
+      .map((cell) => cell.trim());
+    return Boolean(cells[columnIndex]);
+  });
+}
+
 function requireColumn(findings, templateName, section, sectionName, columnName) {
   if (tableColumnIndex(section, columnName) < 0) {
     addFinding(findings, 'FAIL', templateName, `${sectionName} missing required column "${columnName}"`);
@@ -282,6 +327,24 @@ function requireSections(findings, templateName, content, headings) {
     if (!hasSection(content, heading)) {
       addFinding(findings, 'FAIL', templateName, `missing required section "${heading}"`);
     }
+  }
+}
+
+function addRetainedExampleWarnings(findings, templateName, content) {
+  const examplePatterns = [
+    /Example only\./i,
+    /^## Short Examples?/im,
+    /Delete this section or replace it with project-specific rows/i,
+    /User without permission can delete an entity/i,
+    /DELETE \/api\/entities\/\{id\}/i,
+    /Discount approval/i,
+    /Approve renewal discount/i,
+    /Regional sales manager approves submitted renewal discount/i,
+    /EntityPermissionApiTest#shouldRejectDeleteWithoutPermission/i,
+  ];
+
+  if (examplePatterns.some((pattern) => pattern.test(content))) {
+    addFinding(findings, 'WARN', templateName, 'artifact appears to retain template example content; replace or delete examples before finalizing');
   }
 }
 
@@ -366,6 +429,7 @@ function checkQaTestReport(content) {
     addFinding(findings, 'WARN', templateName, 'Runtime QA Validation should state that it does not count as Unit/API/E2E business coverage');
   }
 
+  addRetainedExampleWarnings(findings, templateName, content);
   return findings;
 }
 
@@ -417,6 +481,146 @@ function checkLightweightTestDesign(content) {
     addFinding(findings, 'FAIL', templateName, 'Requirement Authority / Conflict Gate has a conflicts row without BLOCKED');
   }
 
+  addRetainedExampleWarnings(findings, templateName, content);
+  return findings;
+}
+
+function checkRegressionImpactAnalysis(content) {
+  const templateName = 'regression-impact-analysis';
+  const findings = [];
+  requireSections(findings, templateName, content, [
+    'Change Summary',
+    'Impact Analysis',
+    'Risk Level',
+    'Selected Regression Tests',
+    'Tests Not Run / Blockers',
+    'Runtime QA Validation',
+    'Regression Conclusion',
+  ]);
+
+  const impactAnalysis = getSection(content, 'Impact Analysis');
+  if (!sectionHasNonPlaceholderTableRow(impactAnalysis)) {
+    addFinding(findings, 'FAIL', templateName, 'Impact Analysis has no non-placeholder row');
+  }
+
+  const riskLevel = getSection(content, 'Risk Level');
+  if (!sectionHasFilledField(riskLevel, 'Risk')) {
+    addFinding(findings, 'FAIL', templateName, 'Risk Level has no concrete risk value');
+  }
+  if (!sectionHasFilledField(riskLevel, 'Rationale')) {
+    addFinding(findings, 'FAIL', templateName, 'Risk Level has no rationale');
+  }
+
+  const selectedRegressionTests = getSection(content, 'Selected Regression Tests');
+  if (!sectionHasNonPlaceholderTableRow(selectedRegressionTests)) {
+    addFinding(findings, 'FAIL', templateName, 'Selected Regression Tests has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, selectedRegressionTests, 'Selected Regression Tests', 'Result');
+  if (!sectionHasValueInNonPlaceholderRow(selectedRegressionTests, 'Result')) {
+    addFinding(findings, 'FAIL', templateName, 'Selected Regression Tests has no result');
+  }
+  requireColumn(findings, templateName, selectedRegressionTests, 'Selected Regression Tests', 'Evidence');
+  if (!sectionHasNonPlaceholderColumnValue(selectedRegressionTests, 'Evidence')) {
+    addFinding(findings, 'WARN', templateName, 'Selected Regression Tests has no evidence');
+  }
+
+  if (/Overall result:\s*BLOCKED/i.test(content)) {
+    const blockers = getSection(content, 'Tests Not Run / Blockers');
+    if (!sectionHasNonPlaceholderTableRow(blockers)) {
+      addFinding(findings, 'FAIL', templateName, 'Overall result is BLOCKED but Tests Not Run / Blockers has no non-placeholder row');
+    }
+  }
+
+  const conclusion = getSection(content, 'Regression Conclusion');
+  if (!sectionHasNonEmptyField(conclusion, 'Overall result')) {
+    addFinding(findings, 'FAIL', templateName, 'Regression Conclusion has no overall result');
+  }
+  if (!sectionHasFilledField(conclusion, 'Changed behavior covered')) {
+    addFinding(findings, 'FAIL', templateName, 'Regression Conclusion has no changed behavior coverage statement');
+  }
+  if (!sectionHasFilledField(conclusion, 'Directly impacted old behavior covered')) {
+    addFinding(findings, 'FAIL', templateName, 'Regression Conclusion has no old behavior coverage statement');
+  }
+
+  const runtimeValidation = getSection(content, 'Runtime QA Validation');
+  if (runtimeValidation && /Unit\/API\/E2E business coverage/i.test(runtimeValidation)) {
+    addFinding(findings, 'WARN', templateName, 'Runtime QA Validation should not be treated as Unit/API/E2E business coverage');
+  }
+
+  addRetainedExampleWarnings(findings, templateName, content);
+  return findings;
+}
+
+function checkBugReport(content) {
+  const templateName = 'bug-report';
+  const findings = [];
+  requireSections(findings, templateName, content, [
+    'Summary',
+    'Environment',
+    'Reproduction Steps',
+    'Expected Result',
+    'Actual Result',
+    'Evidence',
+    'Failure Classification',
+    'Impact',
+    'Suggested Fix',
+    'Effective Resolution Pattern',
+    'Test Reinforcement',
+    'Resolution',
+  ]);
+
+  const summary = getSection(content, 'Summary');
+  if (!sectionHasFilledField(summary, 'Title')) {
+    addFinding(findings, 'FAIL', templateName, 'Summary has no concrete title');
+  }
+  if (!sectionHasFilledField(summary, 'Related requirement / test point')) {
+    addFinding(findings, 'WARN', templateName, 'Summary has no related requirement or test point');
+  }
+
+  const evidence = getSection(content, 'Evidence');
+  if (!sectionHasNonPlaceholderTableRow(evidence)) {
+    addFinding(findings, 'FAIL', templateName, 'Evidence has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, evidence, 'Evidence', 'Evidence type');
+  requireColumn(findings, templateName, evidence, 'Evidence', 'Location / snippet');
+
+  const failureClassification = getSection(content, 'Failure Classification');
+  if (!sectionHasNonPlaceholderTableRow(failureClassification)) {
+    addFinding(findings, 'FAIL', templateName, 'Failure Classification has no non-placeholder row');
+  }
+  if (!/Root cause\s*\|[^|\n]+/i.test(failureClassification || '')) {
+    addFinding(findings, 'FAIL', templateName, 'Failure Classification has no root cause');
+  }
+
+  const impact = getSection(content, 'Impact');
+  if (!sectionHasFilledField(impact, 'Regression risk')) {
+    addFinding(findings, 'WARN', templateName, 'Impact has no concrete regression risk');
+  }
+
+  const resolutionPattern = getSection(content, 'Effective Resolution Pattern');
+  if (!sectionHasFilledField(resolutionPattern, 'Final effective fix')) {
+    addFinding(findings, 'FAIL', templateName, 'Effective Resolution Pattern has no final effective fix');
+  }
+  if (!sectionHasFilledField(resolutionPattern, 'Why it fixed the root cause')) {
+    addFinding(findings, 'FAIL', templateName, 'Effective Resolution Pattern has no root-cause fix explanation');
+  }
+
+  const testReinforcement = getSection(content, 'Test Reinforcement');
+  if (!sectionHasNonPlaceholderTableRow(testReinforcement)) {
+    addFinding(findings, 'FAIL', templateName, 'Test Reinforcement has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, testReinforcement, 'Test Reinforcement', 'Layer');
+  requireColumn(findings, templateName, testReinforcement, 'Test Reinforcement', 'Coverage artifact');
+
+  const resolution = getSection(content, 'Resolution');
+  if (!sectionHasFilledField(resolution, 'Tests run')) {
+    addFinding(findings, 'FAIL', templateName, 'Resolution has no tests run');
+  }
+  if (!sectionHasFilledField(resolution, 'Final status')) {
+    addFinding(findings, 'FAIL', templateName, 'Resolution has no final status');
+  }
+
+  addRetainedExampleWarnings(findings, templateName, content);
   return findings;
 }
 
@@ -431,8 +635,16 @@ function printFindings(findings, templateName) {
 }
 
 async function runCheck(templateName, artifactPathArg) {
-  if (!['qa-test-report', 'lightweight-test-design'].includes(templateName)) {
-    fail(`Check is not supported for template "${templateName}". Supported templates: qa-test-report, lightweight-test-design.`, true);
+  const checkers = {
+    'qa-test-report': checkQaTestReport,
+    'lightweight-test-design': checkLightweightTestDesign,
+    'regression-impact-analysis': checkRegressionImpactAnalysis,
+    'bug-report': checkBugReport,
+  };
+
+  const checker = checkers[templateName];
+  if (!checker) {
+    fail(`Check is not supported for template "${templateName}". Supported templates: ${Object.keys(checkers).join(', ')}.`, true);
     return;
   }
 
@@ -444,9 +656,7 @@ async function runCheck(templateName, artifactPathArg) {
     return;
   }
 
-  const findings = templateName === 'qa-test-report'
-    ? checkQaTestReport(artifact.content)
-    : checkLightweightTestDesign(artifact.content);
+  const findings = checker(artifact.content);
 
   printFindings(findings, templateName);
 

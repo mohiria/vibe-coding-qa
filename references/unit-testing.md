@@ -42,7 +42,7 @@ Before writing a unit test, collect:
 - The expected behavior authority: active requirement, API contract, data rule, existing behavior baseline, code path, risk, historical defect, or explicit clarification.
 - The smallest production unit that owns the rule.
 - Existing test layout, naming conventions, fixtures, factories, and assertion style.
-- Required dependency seams, mocks, stubs, or realistic synthetic data.
+- Required dependency seams, mocks, stubs, realistic synthetic data, or minimal technical data when the assertion has no business meaning.
 
 If the expected behavior is unclear or conflicts with the existing behavior baseline, use the Requirement Conflict Gate before changing tests or production code. Do not turn the current implementation into the expected behavior by default.
 
@@ -60,7 +60,7 @@ Use strict Red-Green-Refactor for unit tests whenever behavior can be tested bef
 8. Refactor only with tests passing.
 9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
-If the Red test cannot be created or executed because a prerequisite is missing, first try to create deterministic realistic synthetic data through existing factories, builders, fixtures, or local test helpers. Report a blocker only when the dependency, rule, or safe data setup path is genuinely unavailable, then resume after the human confirms it is resolved.
+If the Red test cannot be created or executed because a prerequisite is missing, first try to create deterministic data through existing factories, builders, fixtures, or local test helpers. Use realistic synthetic business data when business meaning affects the assertion. Minimal technical data is acceptable for pure technical boundaries, simple formatters, mappers, or non-business assertions when the exception is recorded. Report a blocker only when the dependency, rule, or safe data setup path is genuinely unavailable, then resume after the human confirms it is resolved.
 
 ## Test Design Rules
 
@@ -139,7 +139,7 @@ Use this setup order by default:
 3. In-memory fake for repositories, clocks, IDs, gateways, or external collaborators.
 4. A documented blocker only when the required rule, dependency contract, or safe synthetic data shape is unclear.
 
-Keep unit data minimal, but use plausible domain values when the test asserts a business rule, state transition, permission decision, formatter, or payload mapping. Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, or `Acme Inc.` for business-facing records unless the assertion is purely technical and the reason is clear in the test design. Do not use live services, production data, real personal data, or real secrets.
+Keep unit data minimal. Use plausible domain values when the test asserts a business rule, state transition, permission decision, business-facing formatter, or payload mapping where meaning matters. Minimal synthetic values are acceptable for pure technical boundaries, simple formatters, mappers, and non-business assertions when the test design records why business realism cannot affect the result. Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, or `Acme Inc.` for business-facing records. Do not use live services, production data, real personal data, or real secrets.
 
 ## Frontend Unit And Component Tests
 
@@ -188,5 +188,5 @@ Before accepting unit tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
-- Test data uses realistic synthetic business values, or a minimal-data exception is documented for pure technical assertions.
+- Test data uses realistic synthetic business values when meaning matters, or a minimal-data exception is documented for pure technical unit assertions.
 - Missing ready-made data was not used as a blocker when a factory, fixture, builder, or synthetic data helper could create it.

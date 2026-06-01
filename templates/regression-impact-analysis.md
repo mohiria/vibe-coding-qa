@@ -2,6 +2,8 @@
 
 Purpose: expanded regression scope for high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical changes. For normal changes, record regression impact inside `lightweight-test-design.md` instead of creating this separate artifact.
 
+Replace or delete all example rows before using this artifact for a real project.
+
 ## Change Summary
 
 - Requirement / change ID:
@@ -47,11 +49,14 @@ Use only when startup, routing, configuration, deployment, or environment availa
 - Overall result: PASS / FAIL / BLOCKED
 - Changed behavior covered:
 - Directly impacted old behavior covered:
+- Requirement-driven test changes:
 - Uncovered test points:
 - Unresolved prerequisite blockers:
 - Remaining risks:
 
 ## Short Example
+
+Delete this section or replace it with project-specific rows before finalizing the artifact.
 
 | Changed item | Impacted existing behavior | Existing tests to rerun | New / modified tests needed | Reason |
 | --- | --- | --- | --- | --- |

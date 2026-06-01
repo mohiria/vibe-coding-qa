@@ -2,6 +2,8 @@
 
 Purpose: summarize what was actually executed, what behavior was proven, what data was prepared, and what risk remains. Do not repeat the full pre-code test design.
 
+Replace or delete all example rows before using this artifact for a real project.
+
 ## Conclusion
 
 - Overall result: PASS / FAIL / BLOCKED
@@ -64,6 +66,7 @@ Use when E2E is in scope. Record workflow coverage, not every field or API varia
 ## Test Data Setup Evidence
 
 Record how required data was created, why it is business-realistic, and how it was isolated or cleaned up.
+For unit-level pure technical assertions only, record a minimal-data exception in `Business realism evidence`. API/integration and E2E rows must use realistic synthetic business data.
 
 | Test / scenario | Required data | Business realism evidence | Setup method | Cleanup | Evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -127,6 +130,8 @@ Use only when the failure reveals a reusable testing, requirement, fixture, or e
 Summarize the final QA result, tests run and not run, TDD evidence status, regression scope, runtime validation boundary, unresolved blockers, and remaining risks.
 
 ## Short Examples
+
+Delete this section or replace it with project-specific rows before finalizing the artifact.
 
 | Test point | Source / authority | Red evidence | Red failure reason | Green evidence | Refactor / regression evidence | Coverage artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
