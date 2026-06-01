@@ -1,6 +1,6 @@
 # Regression Testing
 
-Use this reference after code or test changes have been made, or when planning which existing tests must be rerun before declaring QA complete. Regression testing answers whether the change broke existing behavior.
+Use this reference when the lightweight test design identifies regression impact, after code or test changes have been made, or when planning which existing tests must be rerun before declaring QA complete. Regression testing answers whether the change broke existing behavior.
 
 ## Goal
 
@@ -17,10 +17,13 @@ change diff / changed tests / touched dependency
 
 Regression is impact-based. Directly affected old behavior must be validated before completion. Unrelated old behavior can be left to scheduled full regression unless the risk analysis shows a dependency.
 
+Default to recording initial regression impact inside `lightweight-test-design.md`. Use the separate `regression-impact-analysis.md` artifact only when the change is high-risk, cross-module, requirement-conflicting, heavily changes existing tests or fixtures, or needs a separately reviewable release/regression scope.
+
 ## Required Inputs
 
 Before selecting regression tests, inspect:
 
+- Lightweight test design regression impact.
 - Code diff and changed files.
 - Test diff and changed assertions, fixtures, helpers, or mocks.
 - API contract, data model, schema, configuration, or dependency changes.
@@ -169,6 +172,8 @@ A regression statement must include:
 - Historical defect coverage considered.
 - Remaining uncovered test points and unresolved prerequisite blockers.
 - Runtime QA validation evidence if it was required.
+
+When a separate regression impact analysis is used, merge its `Selected Regression Tests` with the lightweight test design execution scope. Do not treat it as a separate optional checklist.
 
 ## Review Checklist
 

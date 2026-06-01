@@ -1,6 +1,6 @@
 # Regression Impact Analysis
 
-Purpose: justify which existing behavior must be retested after a requirement, code, test, config, or environment change. Do not repeat the full test design or final QA report.
+Purpose: expanded regression scope for high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical changes. For normal changes, record regression impact inside `lightweight-test-design.md` instead of creating this separate artifact.
 
 ## Change Summary
 

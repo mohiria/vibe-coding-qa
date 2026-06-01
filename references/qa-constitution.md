@@ -16,11 +16,12 @@ The default sequence is:
 
 ```text
 Test analysis and lightweight design
+-> initial regression impact
 -> unit tests
 -> API/integration tests
 -> E2E scenarios and tests
+-> update regression scope from actual diff
 -> coverage closure
--> regression impact analysis
 -> runtime QA validation when needed
 -> failure analysis and test reinforcement
 ```
@@ -114,6 +115,8 @@ A test script is invalid if it does not have:
 
 Do not generate tests directly from implementation code alone. Use implementation code to find missing branches, risks, and the existing behavior baseline, but use the best available requirement authority to decide expected behavior. If requirement authority and implementation disagree, apply the Requirement Conflict Gate.
 
+The lightweight design must include initial regression impact for changed behavior. This does not replace later diff-based regression review; it records expected old behavior, old tests, historical defects, and affected workflows that must remain covered while TDD drives the new behavior.
+
 ## Mixed Testing Method
 
 Vibe Coding QA is not pure black-box testing. AI can inspect requirements, data models, API contracts, code, tests, and change history.
@@ -155,6 +158,7 @@ Before submitting or declaring work complete:
 - Run all modified tests.
 - Run directly affected existing tests.
 - Run additional regression tests based on impact and risk.
+- Merge planned design coverage and regression coverage into one execution scope. If the lightweight test design, its regression impact section, or a separate regression impact analysis names an in-scope executable item, that item must be executed, explicitly blocked, or marked not applicable with a reason.
 - Close coverage for in-scope executable test points by recording coverage artifacts. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute.
 - Report any tests that could not be run and explain why.
 
@@ -175,6 +179,8 @@ Deleting or retiring a test is allowed only when the active requirement authorit
 ## Regression Rule
 
 Regression testing asks whether this change broke existing behavior.
+
+Initial regression impact belongs in the lightweight test design so TDD planning considers old behavior while defining Red tests and E2E scenarios. Create a separate regression impact analysis only when the regression scope is complex enough to need independent review, such as high-risk changes, cross-module changes, requirement changes that amend or supersede existing behavior, modified/deleted tests, large fixture/helper changes, or release-critical validation.
 
 Use this default selection:
 

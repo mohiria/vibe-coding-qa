@@ -46,12 +46,12 @@ Use when strict Red-Green-Refactor was intentionally not applied.
 
 ## Tests Run
 
-| Layer | Test / suite | Command | Result | Evidence |
-| --- | --- | --- | --- | --- |
-| Unit | | | PASS / FAIL / BLOCKED | |
-| API/integration | | | PASS / FAIL / BLOCKED | |
-| E2E | | | PASS / FAIL / BLOCKED | |
-| Regression | | | PASS / FAIL / BLOCKED | |
+| Source | Layer | Test / suite | Command | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| Design / Regression / Both | Unit | | | PASS / FAIL / BLOCKED | |
+| Design / Regression / Both | API/integration | | | PASS / FAIL / BLOCKED | |
+| Design / Regression / Both | E2E | | | PASS / FAIL / BLOCKED | |
+| Regression | Regression | | | PASS / FAIL / BLOCKED | |
 
 ## User Scenario Coverage
 
@@ -71,20 +71,21 @@ Record how required data was created, why it is business-realistic, and how it w
 
 ## Tests Not Run / Blockers
 
-| Test / scope | Reason not run | Exact blocker | Required owner action | Residual risk |
-| --- | --- | --- | --- | --- |
-| | BLOCKED / Not applicable | Missing account / service / permission / env var / unsafe data setup path / browser / dependency | | |
+| Source | Test / scope | Reason not run | Exact blocker | Required owner action | Residual risk |
+| --- | --- | --- | --- | --- | --- |
+| Design / Regression / Both | | BLOCKED / Not applicable | Missing account / service / permission / env var / unsafe data setup path / browser / dependency | | |
 
 ## Coverage Summary
 
-| Test point | Layer | Behavioral evidence | Coverage artifact | Status |
-| --- | --- | --- | --- | --- |
-| | Unit / API/integration / E2E | | `path/to/test#name` | COVERED / BLOCKED / UNCOVERED |
+| Source | Test point / regression item | Layer | Behavioral evidence | Coverage artifact | Status |
+| --- | --- | --- | --- | --- | --- |
+| Design / Regression / Both | | Unit / API/integration / E2E | | `path/to/test#name` | COVERED / BLOCKED / UNCOVERED |
 
 ## Regression Scope
 
 - Changed behavior:
 - Directly impacted old behavior:
+- Regression impact source: Lightweight design / Separate regression analysis / Both
 - Historical defects considered:
 - Requirement-driven test additions / modifications / deletions:
 - Regression risk level: Low / Medium / High
@@ -130,6 +131,10 @@ Summarize the final QA result, tests run and not run, TDD evidence status, regre
 | Test point | Source / authority | Red evidence | Red failure reason | Green evidence | Refactor / regression evidence | Coverage artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Approve submitted renewal discount | PRD discount workflow | `pnpm test -- discount-approval.spec.ts` FAIL | Approval transition missing | Same command PASS | Related discount tests PASS | `tests/discount-approval.spec.ts#approvesSubmittedRenewalDiscount` | PASS |
+
+| Source | Layer | Test / suite | Command | Result | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| Both | API/integration | Discount approval API | `pnpm test -- discount-approval.spec.ts` | PASS | report path |
 
 | Test / scenario | Required data | Business realism evidence | Setup method | Cleanup | Evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |

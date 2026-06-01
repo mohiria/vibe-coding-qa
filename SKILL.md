@@ -13,17 +13,17 @@ Follow this order by default:
 
 1. Read `references/qa-constitution.md` for the mandatory testing principles.
 2. Analyze the Spec, PRD, data model, API contract, code structure, and code changes.
-3. Read `references/test-analysis-and-design.md` and create a lightweight test design, including requirement authority checks for changed existing behavior.
+3. Read `references/test-analysis-and-design.md` and create a lightweight test design, including requirement authority checks, test points, TDD candidates, E2E scenarios, test data plan, and initial regression impact for changed existing behavior.
 4. Classify each test point into the right coverage layer: unit, API/integration, or E2E.
 5. Before changing production code, confirm a valid Red test, reusable failing test, documented non-TDD exception, or exact prerequisite blocker.
 6. Generate or review unit tests first for core logic and business rules.
 7. Generate or review API/integration tests for service contracts, authorization, data consistency, and integration behavior.
 8. Generate or review E2E scenarios for all in-scope user workflows. E2E uses scenario-first design, but does not require strict Red-Green TDD.
-9. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
-10. Analyze regression impact for any changed requirements, code, or tests.
+9. Recheck regression impact against the actual code and test diff, then merge new/modified test points and selected regression tests into one execution scope.
+10. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
 11. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
 12. If tests fail, classify the failure before changing code or tests.
-13. In the final QA report, include TDD evidence and requirement authority or conflict review when relevant.
+13. In the final QA report, include TDD evidence, execution source, regression evidence, and requirement authority or conflict review when relevant.
 
 ## TDD Position
 
@@ -55,6 +55,7 @@ Load only the reference needed for the current task.
 - Always perform lightweight test design before generating test scripts.
 - Every in-scope executable test point must be attempted in the current testing cycle. If prerequisites are missing, first try to create deterministic test data through existing fixtures, factories, backend APIs, seed scripts, or safe test database helpers. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable.
 - Always run or require execution of newly added tests and modified tests.
+- Test execution scope must combine design coverage and regression coverage. Run or explicitly block every in-scope executable item from the lightweight test design, its regression impact section, and any separate regression impact analysis used for complex changes. A single command may cover multiple items, but the final report must map the source as `Design`, `Regression`, or `Both`.
 - Always explain why an existing test was modified.
 - Before modifying or deleting an existing test, state the requirement authority and whether the new requirement extends, amends, supersedes, or conflicts with the existing behavior baseline.
 - Never weaken assertions, delete negative cases, skip tests, or change expected behavior only to make a suite pass.
@@ -72,8 +73,8 @@ Load only the reference needed for the current task.
 
 Use the templates only when they help the task:
 
-- `templates/lightweight-test-design.md` for test design before script generation.
-- `templates/regression-impact-analysis.md` for change impact and regression scope.
+- `templates/lightweight-test-design.md` for test design before script generation, including initial regression impact.
+- `templates/regression-impact-analysis.md` for expanded regression scope when the change is high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical.
 - `templates/bug-report.md` for defects found during testing, review, or validation.
 - `templates/qa-test-report.md` for the final QA report, including runtime QA validation evidence when required.
 

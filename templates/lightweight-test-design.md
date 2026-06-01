@@ -1,6 +1,6 @@
 # Lightweight Test Design
 
-Purpose: decide what to test, which layer should cover it, what data is needed, and what must exist before production code changes. Keep final execution evidence in the QA test report.
+Purpose: decide what to test, which layer should cover it, what data is needed, what existing behavior may regress, and what must exist before production code changes. Keep final execution evidence in the QA test report.
 
 ## Context
 
@@ -60,6 +60,14 @@ Use for strict Red-Green-Refactor candidates at unit or API/integration layers.
 | --- | --- | --- | --- | --- | --- |
 | | | | | | |
 
+## Regression Impact
+
+Record expected old behavior and existing tests to rerun while designing the TDD scope. Recheck this section after the actual code and test diff.
+
+| Changed / planned item | Impacted existing behavior | Existing tests to rerun | Historical defects considered | Regression risk | Separate regression analysis needed? |
+| --- | --- | --- | --- | --- | --- |
+| | | | | Low / Medium / High | Yes / No, with reason |
+
 ## E2E Scenarios
 
 Use for selected workflow-level E2E scenarios. Detailed field and API variants should stay in lower layers when possible.
@@ -86,6 +94,7 @@ Use for selected workflow-level E2E scenarios. Detailed field and API variants s
 - Red evidence, reusable failing test, non-TDD exception, or exact blocker exists for strict TDD candidates: Yes / No
 - User workflows in scope for E2E are enumerated: Yes / No / Not applicable
 - Test data plan includes business realism basis and setup path: Yes / No
+- Initial regression impact is recorded and existing tests to rerun are listed or justified as not needed: Yes / No
 - Uncovered planned test points or blockers:
 
 ## Short Examples
@@ -101,3 +110,9 @@ Example test data:
 | Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
 | --- | --- | --- | --- | --- | --- | --- |
 | Approve renewal discount | Customer account with submitted annual renewal discount request | Mirrors regional manager approval for owned enterprise accounts | API setup | Unique prefix and test tenant | API cleanup | Ready |
+
+Example regression impact:
+
+| Changed / planned item | Impacted existing behavior | Existing tests to rerun | Historical defects considered | Regression risk | Separate regression analysis needed? |
+| --- | --- | --- | --- | --- | --- |
+| Discount approval rule | Existing pending and approved discount transitions | `DiscountApprovalApiTest` | Prior unauthorized approval defect | Medium | No, covered by this design |

@@ -16,7 +16,7 @@ const templates = {
   },
   'regression-impact-analysis': {
     file: 'regression-impact-analysis.md',
-    description: 'Impact-based regression scope and evidence',
+    description: 'Expanded regression scope for complex changes',
   },
   'bug-report': {
     file: 'bug-report.md',
@@ -162,6 +162,8 @@ function isPlaceholderCell(cell) {
     /^(yes|no|yes \/ no|yes \/ no \/ blocked|yes \/ no \/ not applicable)$/i,
     /^(pass|fail|blocked|pass \/ fail \/ blocked)$/i,
     /^(covered|uncovered|covered \/ blocked \/ uncovered)$/i,
+    /^design \/ regression \/ both$/i,
+    /^(lightweight design|separate regression analysis|lightweight design \/ separate regression analysis \/ both)$/i,
     /^(p0|p1|p2|p3|p0 \/ p1 \/ p2 \/ p3)$/i,
     /^unit \/ api\/integration \/ e2e$/i,
     /^unit \/ api\/integration \/ e2e \/ runtime$/i,
@@ -182,6 +184,7 @@ function isPlaceholderCell(cell) {
     /^unique prefix \/ tenant \/ transaction \/ container \/ storage state$/i,
     /^api cleanup \/ db cleanup \/ rollback \/ unique residual data$/i,
     /^ready \/ blocked with exact reason$/i,
+    /^yes \/ no, with reason$/i,
     /^entry point -> operation -> visible outcome$/i,
     /^covered \/ blocked \/ lower-layer-only$/i,
     /^command \/ response \/ log \/ test helper$/i,
@@ -302,10 +305,18 @@ function checkQaTestReport(content) {
   if (!sectionHasNonPlaceholderTableRow(testsRun)) {
     addFinding(findings, 'FAIL', templateName, 'Tests Run has no non-placeholder row');
   }
+  requireColumn(findings, templateName, testsRun, 'Tests Run', 'Source');
+  if (!sectionHasNonPlaceholderColumnValue(testsRun, 'Source')) {
+    addFinding(findings, 'FAIL', templateName, 'Tests Run has no execution source');
+  }
 
   const coverageSummary = getSection(content, 'Coverage Summary');
   if (!sectionHasNonPlaceholderTableRow(coverageSummary)) {
     addFinding(findings, 'FAIL', templateName, 'Coverage Summary has no non-placeholder row');
+  }
+  requireColumn(findings, templateName, coverageSummary, 'Coverage Summary', 'Source');
+  if (!sectionHasNonPlaceholderColumnValue(coverageSummary, 'Source')) {
+    addFinding(findings, 'FAIL', templateName, 'Coverage Summary has no coverage source');
   }
 
   const scope = getSection(content, 'Scope') || '';
@@ -369,6 +380,7 @@ function checkLightweightTestDesign(content) {
     'User Scenario Matrix',
     'Test Data Plan',
     'TDD Candidates',
+    'Regression Impact',
     'Coverage Closure',
   ]);
 
@@ -389,6 +401,11 @@ function checkLightweightTestDesign(content) {
   requireColumn(findings, templateName, testDataPlan, 'Test Data Plan', 'Business realism basis');
   if (!sectionHasNonPlaceholderColumnValue(testDataPlan, 'Business realism basis')) {
     addFinding(findings, 'FAIL', templateName, 'Test Data Plan has no business realism basis');
+  }
+
+  const regressionImpact = getSection(content, 'Regression Impact');
+  if (!sectionHasNonPlaceholderTableRow(regressionImpact)) {
+    addFinding(findings, 'FAIL', templateName, 'Regression Impact has no non-placeholder row');
   }
 
   const conflictGate = getSection(content, 'Requirement Authority / Conflict Gate');

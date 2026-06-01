@@ -13,6 +13,7 @@ Spec / PRD / data model / API contract / code change
 -> test layer
 -> expected result
 -> assertion target
+-> initial regression impact
 -> test script or validation action
 ```
 
@@ -159,6 +160,15 @@ Required fields:
 
 For changed existing behavior, also record the requirement relationship and decision authority in the QA report's `Requirement Authority / Conflict Review` section.
 
+Also record initial regression impact in the lightweight design:
+
+| Field | Meaning |
+| --- | --- |
+| Impacted existing behavior | Old behavior, workflow, API contract, data rule, permission rule, or historical defect that may be affected. |
+| Existing tests to rerun | Known old tests or suites that should remain passing. |
+| Regression risk | Low, Medium, or High based on blast radius and criticality. |
+| Separate regression analysis needed? | `Yes` only for high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical changes. |
+
 Example only. Replace these rows with project-specific behavior. Use Chinese for project-specific test design content when the team works in Chinese. Keep code identifiers, API paths, enum values, field names, and test file names in their original form.
 
 | Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
@@ -184,6 +194,7 @@ For each TDD candidate, record:
 - Minimal behavior required to pass.
 - Related Spec or rule.
 - Regression tests that must remain passing.
+- Existing behavior that may be affected and must be covered by regression execution.
 
 Then close coverage for each in-scope executable TDD candidate:
 
@@ -282,6 +293,14 @@ Before execution, perform prerequisite checks:
 
 If a prerequisite is missing, do not mark the test as optional or resolved without execution. For missing data, first attempt deterministic setup through the project data setup options. Report the blocker to the human owner only after the safe setup options are unavailable or insufficient, include the exact requirement, and resume execution after the human confirms the blocker is resolved.
 
+Before execution, merge the execution scope from:
+
+- `Test Points`, `TDD Candidates`, `User Scenario Matrix`, and `E2E Scenarios` in the lightweight test design.
+- `Regression Impact` in the lightweight test design.
+- `Selected Regression Tests` from a separate regression impact analysis when one is used.
+
+Deduplicate by test artifact, command, or scenario. If one test covers both new/modified behavior and old regression behavior, execute it once and report its source as `Both`.
+
 ## Coverage Closure
 
 Coverage closure connects test design to actual test coverage. Perform it after generating, updating, and executing automated tests.
@@ -342,6 +361,7 @@ Before generating scripts, verify:
 - TDD candidates were identified.
 - E2E scenarios have persona, path, assertion, data, and cleanup.
 - Regression risks were identified for changed behavior.
+- Initial regression impact was recorded in the lightweight design, including existing tests to rerun or the reason none are needed.
 - Test data setup and cleanup are clear.
 - Test data uses realistic synthetic business records or records an explicit minimal-data exception.
 - Missing ready-made data was not used as a blocker when API, fixture, seed, or safe test DB setup was available.
@@ -351,6 +371,7 @@ After creating or executing tests, verify:
 
 - Each in-scope executable test point has a coverage artifact after prerequisites are available.
 - New or modified tests were executed and results were recorded.
+- Regression tests selected by the lightweight design or separate regression analysis were executed or explicitly blocked.
 - Red tests failed for the expected behavior reason before implementation when strict TDD applies.
 - Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.
 - Coverage artifacts use project-root relative paths, with optional `#testName`.
