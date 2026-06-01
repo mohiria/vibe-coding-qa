@@ -77,6 +77,8 @@ Use the templates only when they help the task:
 - `templates/bug-report.md` for defects found during testing, review, or validation.
 - `templates/qa-test-report.md` for the final QA report, including runtime QA validation evidence when required.
 
+Template artifacts are working documents for both AI execution and human review. Keep each artifact focused on its purpose: design templates decide what should be tested before code, regression templates justify what old behavior to rerun, and final reports summarize execution evidence and remaining risk. Use short realistic examples when they clarify how to fill a section, but do not turn templates into full rule manuals; detailed testing rules belong in `references/`.
+
 When a template file is needed, copy or adapt its structure into the project artifact requested by the user. Do not create unnecessary documents.
 
 Final QA reports should use structured evidence summaries instead of long raw logs. Record execution evidence, behavioral evidence, coverage evidence, TDD Red/Green/Regression evidence, and unresolved requirement conflicts in the relevant report sections.

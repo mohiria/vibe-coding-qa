@@ -159,11 +159,12 @@ function isPlaceholderCell(cell) {
   }
 
   const placeholderPatterns = [
-    /^(yes|no|yes \/ no)$/i,
+    /^(yes|no|yes \/ no|yes \/ no \/ blocked|yes \/ no \/ not applicable)$/i,
     /^(pass|fail|blocked|pass \/ fail \/ blocked)$/i,
     /^(covered|uncovered|covered \/ blocked \/ uncovered)$/i,
     /^(p0|p1|p2|p3|p0 \/ p1 \/ p2 \/ p3)$/i,
     /^unit \/ api\/integration \/ e2e$/i,
+    /^unit \/ api\/integration \/ e2e \/ runtime$/i,
     /^red \/ green \/ pass \/ blocked$/i,
     /^command\/result\/report$/i,
     /^expected behavior gap, not setup failure$/i,
@@ -397,14 +398,6 @@ function checkLightweightTestDesign(content) {
   }
   if (hasConflictRow && !/\bBLOCKED\b/.test(conflictGate || '')) {
     addFinding(findings, 'FAIL', templateName, 'Requirement Authority / Conflict Gate has a conflicts row without BLOCKED');
-  }
-
-  const coverageClosure = getSection(content, 'Coverage Closure') || '';
-  if (/- \[[xX]\].*coverage artifact/i.test(coverageClosure)) {
-    const hasCoverageArtifact = /\b[\w./-]+\.(test|spec|java|py|rs|go|cpp|c|cc|ts|tsx|js|jsx)(#[-\w .]+)?\b/.test(content);
-    if (!hasCoverageArtifact) {
-      addFinding(findings, 'FAIL', templateName, 'Coverage Closure marks coverage artifacts complete but no coverage artifact path was found');
-    }
   }
 
   return findings;

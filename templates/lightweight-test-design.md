@@ -1,5 +1,7 @@
 # Lightweight Test Design
 
+Purpose: decide what to test, which layer should cover it, what data is needed, and what must exist before production code changes. Keep final execution evidence in the QA test report.
+
 ## Context
 
 - Requirement / Spec:
@@ -20,17 +22,15 @@
 
 ## Requirement Authority / Conflict Gate
 
-Use this section when the change touches behavior that already exists or is already covered by tests.
+Use only when the change touches existing behavior, tests, API contracts, data model behavior, or old Specs.
 
 | Behavior | Existing baseline | New requirement source | Relationship | Decision authority | Result |
 | --- | --- | --- | --- | --- | --- |
 | | Existing tests / code / old Spec / API contract / data model | Active Spec / PRD / issue / user confirmation | extends / amends / supersedes / conflicts | Source or owner | Proceed / BLOCKED |
 
-If the relationship is `conflicts`, do not change expected behavior, existing tests, or production code until clarified.
-
 ## Test Points
 
-`Coverage artifact` may be empty during initial analysis. After a Red test or other automated test is created and executed, update it with the project-root relative path and optional `#testName`.
+List the behavior to prove and the lowest effective layer. `Coverage artifact` may be empty until the test exists and has been executed.
 
 | Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ If the relationship is `conflicts`, do not change expected behavior, existing te
 
 ## User Scenario Matrix
 
-Use this section to enumerate user workflows before selecting or writing E2E tests. E2E covers user workflows, not every field combination or API contract variant.
+Use when E2E is in scope. Enumerate user workflows before selecting browser tests.
 
 | Scenario | Persona / role | Entry point | Data state | Operation path | Outcome type | E2E coverage decision |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -46,7 +46,7 @@ Use this section to enumerate user workflows before selecting or writing E2E tes
 
 ## Test Data Plan
 
-Missing ready-made data is not a blocker when fixtures, factories, APIs, seed scripts, or a safe test database can create the required state. Use realistic synthetic business data; obvious placeholder data is invalid unless a pure technical assertion records a minimal-data exception.
+Plan deterministic setup, isolation, cleanup, and realistic synthetic business data.
 
 | Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -54,18 +54,15 @@ Missing ready-made data is not a blocker when fixtures, factories, APIs, seed sc
 
 ## TDD Candidates
 
+Use for strict Red-Green-Refactor candidates at unit or API/integration layers.
+
 | Test point | Initial failing test | Why it should fail before implementation | Expected Red failure reason | Minimal behavior to pass | Related regression |
 | --- | --- | --- | --- | --- | --- |
 | | | | | | |
 
-Before production code changes, each strict TDD candidate must have one of:
-
-- Valid Red evidence.
-- A reusable existing failing test.
-- A documented non-TDD exception.
-- An exact prerequisite blocker.
-
 ## E2E Scenarios
+
+Use for selected workflow-level E2E scenarios. Detailed field and API variants should stay in lower layers when possible.
 
 | Scenario | Persona / role | Preconditions | User path | Critical assertions | Cleanup | Evidence on failure |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -85,33 +82,22 @@ Before production code changes, each strict TDD candidate must have one of:
 
 ## Coverage Closure
 
-- [ ] Each in-scope executable test point has a coverage artifact after prerequisites are available.
-- [ ] In-scope user workflows were enumerated before selecting E2E tests.
-- [ ] Test data uses realistic synthetic business records or records an explicit minimal-data exception.
-- [ ] Missing ready-made data was not used as a blocker when fixture, API, seed, realistic synthetic data, or safe test DB setup was available.
-- [ ] New or modified tests were executed and results were recorded.
-- [ ] Red tests failed for the expected behavior reason when strict TDD applies.
-- [ ] Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.
-- [ ] Commands, reports, CI links, logs, screenshots, traces, or responses are recorded as execution evidence when relevant.
-- [ ] Behavioral evidence describes what assertion proved.
-- [ ] Coverage evidence maps each covered test point to a project-relative test path and optional `#testName`.
-- [ ] Uncovered test points and unresolved prerequisite blockers are listed explicitly.
-- [ ] Requirement conflicts are resolved or explicitly listed as BLOCKED.
-- [ ] Runtime QA validation, if performed, is treated only as availability smoke evidence and not counted as Unit/API/E2E business coverage.
+- Ready for code change: Yes / No / BLOCKED
+- Red evidence, reusable failing test, non-TDD exception, or exact blocker exists for strict TDD candidates: Yes / No
+- User workflows in scope for E2E are enumerated: Yes / No / Not applicable
+- Test data plan includes business realism basis and setup path: Yes / No
+- Uncovered planned test points or blockers:
 
-## Notes
+## Short Examples
 
-- Uncovered test points:
-- Remaining risks:
-- Execution evidence:
-- Behavioral evidence:
-- Coverage evidence:
-
-## Example Rows
-
-These examples are illustrative only. Replace them with project-specific behavior.
+Example test point:
 
 | Test point | Source / authority | Design method | Test layer | Input / precondition | Expected result | Assertion target | Priority | Coverage artifact |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Required name is rejected | Active field rule | Equivalence partitioning | Unit + API/integration | `name` is empty | Validation fails | Required-field error code and message | P0 | `src/entity-validator.test.ts#rejectsEmptyName` |
-| User without delete permission cannot delete an entity | Permission rule | Decision table | API/integration + E2E user workflow | Current role lacks delete permission | Delete is rejected and entity remains | HTTP 403; UI action unavailable or disabled | P0 | `tests/entity-permission.test.ts#rejectsDeleteWithoutPermission` |
+| Regional sales manager approves submitted renewal discount | PRD discount workflow | State transition | API/integration + E2E | Submitted renewal discount for owned account | Request becomes approved and audit entry is visible | HTTP 200, persisted status, approval badge | P0 | `tests/discount-approval.spec.ts#approvesSubmittedRenewalDiscount` |
+
+Example test data:
+
+| Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Approve renewal discount | Customer account with submitted annual renewal discount request | Mirrors regional manager approval for owned enterprise accounts | API setup | Unique prefix and test tenant | API cleanup | Ready |
