@@ -32,7 +32,7 @@ If evidence is missing, gather it before editing. If access to logs, artifacts, 
 
 ## Failure Classification
 
-Classify the failure before taking action.
+The failure-type summary is canonical in `qa-constitution.md` §Failure Handling. This section adds the signals and actions per type. Classify the failure before taking action.
 
 | Failure type | Signals | Action |
 | --- | --- | --- |

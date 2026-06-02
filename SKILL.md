@@ -1,6 +1,6 @@
 ---
 name: vibe-coding-qa
-description: Guide Vibe Coding QA work with TDD-driven layered testing. Use when Codex needs to analyze testability, design lightweight test cases, generate or review unit tests, API/integration tests, E2E scenarios, regression scope, runtime QA validation, test failure analysis, or quality gates for AI-generated code.
+description: Guide Vibe Coding QA work with TDD-driven layered testing. Use when analyzing testability, designing lightweight test cases, generating or reviewing unit tests, API/integration tests, E2E scenarios, regression scope, runtime QA validation, test failure analysis, or quality gates for AI-generated code.
 ---
 
 # Vibe Coding QA
@@ -42,6 +42,7 @@ Load only the reference needed for the current task.
 | --- | --- |
 | Establish mandatory rules, quality gates, or anti-fake-test policy | `references/qa-constitution.md` |
 | Extract test points or decide test layers | `references/test-analysis-and-design.md` |
+| Generate realistic synthetic / simulated test data | `references/test-data-and-simulation.md` |
 | Choose test framework or runner when project convention is unclear | `references/test-tooling.md` |
 | Generate or review unit tests | `references/unit-testing.md` |
 | Generate or review API/integration tests | `references/api-and-integration-testing.md` |
@@ -52,24 +53,15 @@ Load only the reference needed for the current task.
 
 ## Mandatory Rules
 
-- Always perform lightweight test design before generating test scripts. Small behavior changes may use a minimal lightweight design, but it must still identify the requirement source, test point, TDD Red evidence or exception/blocker, and regression impact.
-- Every in-scope executable test point must be attempted in the current testing cycle. Select representative test points through equivalence classes, boundary values, decision tables, state transitions, and risk analysis; do not create meaningless combination explosions. If prerequisites are missing, first try to create deterministic test data through existing fixtures, factories, backend APIs, seed scripts, or safe test database helpers. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable.
-- Always run or require execution of newly added tests and modified tests.
-- Test execution scope must combine design coverage and regression coverage. Run or explicitly block every in-scope executable item from the lightweight test design, its regression impact section, and any separate regression impact analysis used for complex changes. A single command may cover multiple items, but the final report must map the source as `Design`, `Regression`, or `Both`.
-- Always explain why an existing test was modified.
-- Before modifying or deleting an existing test, state the requirement authority and whether the new requirement extends, amends, supersedes, or conflicts with the existing behavior baseline.
-- Never weaken assertions, delete negative cases, skip tests, or change expected behavior only to make a suite pass.
-- A Red test is valid only when it fails for the expected behavior reason. Syntax, import, test setup, fixture, or environment failures are blockers or setup failures, not Red evidence.
-- If strict TDD does not apply, record the reason, alternative validation, and remaining risk.
-- Prefer the lowest effective test layer: unit before API/integration, API/integration before E2E.
-- Cover all in-scope user workflows at the E2E scenario level. Do not use E2E to exhaustively cover every field combination, branch, or API contract detail when a lower layer can prove it more reliably.
-- Test data setup is part of test design and execution. Missing ready-made seed data is not a blocker when local services, APIs, or a safe test database setup path can create the required data.
-- Test data must be realistic synthetic business data when the assertion depends on business meaning: plausible names, statuses, dates, amounts, ownership, permissions, and relationships that fit the product domain. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when they record why business realism does not affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Obvious placeholder data is invalid for business-facing records.
-- API/integration and E2E test data evidence must record why the data is business-realistic. API/integration evidence should cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. E2E evidence should cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
-- Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
-- Runtime QA validation is execution support and final availability smoke validation. It does not count as business test coverage and must not replace unit, API, or E2E testing.
-- Test conclusions must cite evidence: command output, response body, logs, screenshots, traces, reports, or CI output.
-- A QA cycle that executes tests, creates or modifies tests, performs regression, API/integration, E2E, runtime validation, or failure analysis must produce or update `qa-test-report`. If the report cannot be produced, record the exact blocker, alternative evidence, and remaining risk.
+`references/qa-constitution.md` is the canonical rulebook. Read it first; it governs the points below and must not be weakened. Key non-negotiables:
+
+- Lightweight test design comes before test scripts. Even small changes must record requirement source, representative test point, TDD Red evidence or a documented exception/blocker, and initial regression impact.
+- A Red test is valid only when it fails for the expected-behavior reason; syntax/import/setup/fixture/environment failures are blockers, not Red evidence. Prefer the lowest effective layer (unit -> API/integration -> E2E).
+- Execute every in-scope executable test point, or explicitly block it; run all new and modified tests. Execution scope combines design and regression coverage, with each item reported as `Design`, `Regression`, or `Both`.
+- Before modifying or deleting an existing test, apply the Requirement Conflict Gate (extends/amends/supersedes/conflicts) and state the authority. Never weaken assertions, drop negative cases, skip tests, or bend expected behavior just to pass.
+- Test data follows the canonical `## Test Data Rules`: realistic synthetic business data when meaning matters, a documented minimal-data exception only for unit-level technical assertions, and "missing ready-made data is not a blocker." Generation techniques are in `references/test-data-and-simulation.md`.
+- Runtime QA validation is availability smoke only; it never counts as Unit/API/E2E business coverage.
+- Cite evidence for every conclusion, and produce or update `qa-test-report` for any QA cycle (or record the exact blocker, alternative evidence, and remaining risk).
 
 ## Deliverables
 
@@ -88,6 +80,10 @@ Final QA reports should use structured evidence summaries instead of long raw lo
 
 ## Script
 
-Use `scripts/qa_artifacts.mjs` only for deterministic template generation. It must not decide test scope, evaluate quality, or replace engineering judgment.
+`scripts/qa_artifacts.mjs` is a deterministic helper only. It must not decide test scope, evaluate test quality, execute tests, or replace engineering judgment. Commands:
 
-Use `scripts/qa_artifacts.mjs check <template-name> <artifact-path>` for deterministic artifact structure checks. It supports `lightweight-test-design`, `qa-test-report`, `regression-impact-analysis`, and `bug-report`. It checks required sections, placeholder content, evidence fields, and obvious retained examples. It must not decide QA scope, evaluate test quality, execute tests, or replace engineering judgment.
+- `node scripts/qa_artifacts.mjs list` — list available templates.
+- `node scripts/qa_artifacts.mjs create <template-name> <output-path>` — copy a template to a new artifact path.
+- `node scripts/qa_artifacts.mjs check <template-name> <artifact-path>` — structure check (required sections, placeholder content, evidence fields, obvious retained examples).
+
+`check` supports `lightweight-test-design`, `qa-test-report`, `regression-impact-analysis`, and `bug-report`. Run it when practical and report unresolved FAIL or WARN findings.

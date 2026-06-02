@@ -54,7 +54,7 @@ Use code visibility to find affected callers, but use active requirement authori
 
 ## Risk Levels
 
-Classify regression risk before choosing the suite.
+The risk -> required-regression summary is canonical in `qa-constitution.md` §Regression Rule. This section adds the signals that drive each level. Classify regression risk before choosing the suite.
 
 | Risk | Signals | Required regression |
 | --- | --- | --- |
@@ -102,15 +102,7 @@ For requirement-driven test additions, modifications, or deletions, record the r
 
 Changing a test increases regression responsibility.
 
-When an existing test is modified, state the reason:
-
-1. The active requirement changed.
-2. The expected behavior intentionally changed.
-3. The old test was incorrect.
-4. The old test was flaky and is being fixed.
-5. Test data or environment changed.
-
-Then verify:
+When an existing test is modified, state one of the allowed reasons from `qa-constitution.md` §Required Execution Rules (requirement changed, behavior intentionally changed, old test incorrect, old test flaky, or test data/environment changed). Then verify:
 
 - The updated test still has a clear purpose.
 - Assertions remain meaningful.
@@ -135,17 +127,7 @@ If no defect test exists and the issue is likely to recur, add one at the lowest
 
 ## Runtime Validation Boundary
 
-Runtime QA validation can be part of high-risk regression when environment availability matters, but it is not business test coverage.
-
-Use runtime validation for:
-
-- Service startup after configuration changes.
-- Routing or deployment changes.
-- Auth/session setup risk.
-- External dependency wiring risk.
-- High-risk release smoke.
-
-Do not count a health check, manual browser smoke, or log inspection as covering unit, API/integration, or E2E business behavior.
+Runtime QA validation can be part of high-risk regression (service startup, routing/deployment, auth/session, dependency wiring, release smoke) when environment availability matters. Its boundary is canonical in `qa-constitution.md` §Runtime QA Validation Rule: it is not Unit/API/E2E business coverage.
 
 ## Execution Evidence
 

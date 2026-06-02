@@ -60,7 +60,7 @@ Use strict Red-Green-Refactor for unit tests whenever behavior can be tested bef
 8. Refactor only with tests passing.
 9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
-If the Red test cannot be created or executed because a prerequisite is missing, first try to create deterministic data through existing factories, builders, fixtures, or local test helpers. Use realistic synthetic business data when business meaning affects the assertion. Minimal technical data is acceptable for pure technical boundaries, simple formatters, mappers, or non-business assertions when the exception is recorded. Report a blocker only when the dependency, rule, or safe data setup path is genuinely unavailable, then resume after the human confirms it is resolved.
+If the Red test cannot be created or executed because a prerequisite is missing, follow `qa-constitution.md` §Test Data Rules to create deterministic data before reporting a blocker.
 
 ## Test Design Rules
 
@@ -130,16 +130,14 @@ Prefer real lightweight value objects, factories, or in-memory fakes when they m
 
 ## Test Data Setup
 
-Unit tests should not depend on ready-made seed data.
-
-Use this setup order by default:
+Test data rules are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. Unit-specific setup order:
 
 1. Existing project factory, builder, fixture, or test helper.
 2. Inline minimal realistic synthetic data when the shape is simple and stable.
 3. In-memory fake for repositories, clocks, IDs, gateways, or external collaborators.
 4. A documented blocker only when the required rule, dependency contract, or safe synthetic data shape is unclear.
 
-Keep unit data minimal. Use plausible domain values when the test asserts a business rule, state transition, permission decision, business-facing formatter, or payload mapping where meaning matters. Minimal synthetic values are acceptable for pure technical boundaries, simple formatters, mappers, and non-business assertions when the test design records why business realism cannot affect the result. Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, or `Acme Inc.` for business-facing records. Do not use live services, production data, real personal data, or real secrets.
+Unit tests are where the minimal-data exception applies: use plausible domain values when meaning matters (business rules, state transitions, permission decisions, business-facing formatters, payload mapping), and minimal synthetic values only for pure technical boundaries when the test design records why business realism cannot affect the result.
 
 ## Frontend Unit And Component Tests
 
@@ -162,17 +160,10 @@ After creating or modifying unit tests:
 1. Run the new or modified unit tests.
 2. Run directly affected existing unit tests.
 3. Record the command and result as evidence.
-4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
+4. Update the lightweight design `Coverage artifact` per `qa-constitution.md` §Coverage Artifact Format.
 5. List uncovered unit-level test points and unresolved prerequisite blockers.
 
-Examples:
-
-```text
-backend/src/test/java/com/acme/entity/EntityValidatorTest.java#shouldRejectEmptyName
-frontend/src/features/entity/entity-form.test.tsx#rejects empty entity name
-```
-
-Runtime QA validation is not unit coverage. It may prove that an app or service starts, but it does not replace unit tests for business rules.
+Runtime QA validation is not unit coverage (see `qa-constitution.md` §Runtime QA Validation Rule).
 
 ## Review Checklist
 
@@ -188,5 +179,4 @@ Before accepting unit tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
-- Test data uses realistic synthetic business values when meaning matters, or a minimal-data exception is documented for pure technical unit assertions.
-- Missing ready-made data was not used as a blocker when a factory, fixture, builder, or synthetic data helper could create it.
+- Test data follows `qa-constitution.md` §Test Data Rules (minimal-data exception documented where used; missing data not treated as a blocker when it could be created).

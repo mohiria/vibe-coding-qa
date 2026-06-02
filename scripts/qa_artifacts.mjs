@@ -171,7 +171,6 @@ function isPlaceholderCell(cell) {
     /^command\/result\/report$/i,
     /^expected behavior gap, not setup failure$/i,
     /^path\/to\/test#name$/i,
-    /^missing account \/ service \/ permission \/ env var \/ seed \/ browser \/ dependency$/i,
     /^missing account \/ service \/ permission \/ env var \/ unsafe data setup path \/ browser \/ dependency$/i,
     /^page \/ route \/ modal \/ deep link$/i,
     /^empty \/ existing \/ archived \/ submitted \/ approved \/ rejected \/ locked$/i,
@@ -347,16 +346,14 @@ function requireSections(findings, templateName, content, headings) {
 }
 
 function addRetainedExampleWarnings(findings, templateName, content) {
+  // Detect retained template examples via the stable structural markers the
+  // templates use to fence their example content. This intentionally avoids
+  // matching specific example business prose so the checker does not drift when
+  // template examples are reworded.
   const examplePatterns = [
     /Example only\./i,
     /^## Short Examples?/im,
     /Delete this section or replace it with project-specific rows/i,
-    /User without permission can delete an entity/i,
-    /DELETE \/api\/entities\/\{id\}/i,
-    /Discount approval/i,
-    /Approve renewal discount/i,
-    /Regional sales manager approves submitted renewal discount/i,
-    /EntityPermissionApiTest#shouldRejectDeleteWithoutPermission/i,
   ];
 
   if (examplePatterns.some((pattern) => pattern.test(content))) {

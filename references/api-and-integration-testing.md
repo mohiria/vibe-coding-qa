@@ -61,7 +61,7 @@ Use strict Red-Green-Refactor for API and integration behavior when the contract
 8. Refactor only with tests passing.
 9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
-If the Red test cannot be created or executed because a database, service, credential, plugin, account, seed, or permission is missing, first try the project's deterministic setup path: fixture, factory, backend API setup, seed script, isolated test database, container, or safe DB helper. Report a blocker only when no safe setup path exists or an external prerequisite is genuinely unavailable, then resume after the human confirms it is resolved.
+If the Red test cannot be created or executed because a database, service, credential, plugin, account, seed, or permission is missing, follow the setup order in `qa-constitution.md` §Test Data Rules before reporting a blocker, then resume after the human confirms it is resolved.
 
 ## Contract Assertions
 
@@ -88,42 +88,16 @@ Weak assertions are not enough:
 
 ## Data And Isolation Rules
 
-API and integration tests need deterministic data.
+Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. The unit-level minimal-data exception does not apply to API or integration tests.
 
-Use the project convention first:
+API/integration adds these layer-specific requirements:
 
-- Test factories.
-- Seed scripts.
-- Transaction rollback.
-- Isolated test database.
-- Containers.
-- API setup helpers.
-- Per-test cleanup.
-
-Data rules:
-
-- Use unique names, IDs, or prefixes for created records.
-- Use realistic synthetic business records that satisfy product-domain rules, lifecycle state, ownership, permissions, and relationship constraints. The unit-test minimal-data exception does not apply to API or integration tests.
-- Record why the data is business-realistic for this API/integration boundary: API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship.
+- Record why the data is business-realistic for this boundary: API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship.
 - Keep request payloads, persisted state, and expected side effects coherent; do not combine impossible statuses, dates, owners, tenants, or approval states.
-- Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text in business-facing records.
-- Do not depend on production data.
-- Do not use real secrets or personal data.
-- Keep setup close to the test unless shared fixtures are already established.
-- Verify cleanup for tests that create durable records, files, jobs, or messages.
-- Prefer explicit setup over hidden global state.
+- Use unique names, IDs, or prefixes, and verify cleanup for tests that create durable records, files, jobs, or messages.
+- Keep setup close to the test unless shared fixtures are already established; prefer explicit setup over hidden global state.
 
 When testing persistence, assert the stored state when correctness depends on it. Response assertions alone are not enough for data consistency rules.
-
-Use this setup order by default:
-
-1. Existing fixture, factory, builder, or integration test helper.
-2. Backend API setup when it exercises a stable setup boundary and does not hide the behavior under test.
-3. Project-approved seed script.
-4. Isolated test database, transaction, container, or safe DB helper.
-5. Blocker only when the required state cannot be created safely or the data rules are unclear.
-
-Missing ready-made seed data is not a blocker if the required data can be created through these setup paths.
 
 ## Authorization And Permission Matrix
 
@@ -181,18 +155,11 @@ After creating or modifying API/integration tests:
 1. Run the new or modified API/integration tests.
 2. Run directly affected unit tests and existing API/integration tests.
 3. Record the command and result as evidence.
-4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
+4. Update the lightweight design `Coverage artifact` per `qa-constitution.md` §Coverage Artifact Format.
 5. List uncovered API/integration test points and unresolved prerequisite blockers.
 6. Ensure the final `qa-test-report` records API/integration data setup evidence, business realism evidence, cleanup, and execution evidence.
 
-Examples:
-
-```text
-backend/src/test/java/com/acme/entity/EntityApiTest.java#shouldRejectMissingName
-backend/tests/integration/entity-permission.spec.ts#rejects delete without permission
-```
-
-Runtime QA validation is not API/integration coverage. A health check or manual API smoke can prove availability, but it does not replace contract, authorization, or persistence assertions.
+Runtime QA validation is not API/integration coverage (see `qa-constitution.md` §Runtime QA Validation Rule).
 
 ## Review Checklist
 
@@ -208,6 +175,5 @@ Before accepting API or integration tests, verify:
 - New, modified, and directly affected tests were executed.
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
-- Test data is realistic synthetic business data that matches the API contract, persistence rule, permission state, or integration behavior.
+- Test data follows `qa-constitution.md` §Test Data Rules and cites the API contract, persistence rule, permission state, or integration behavior that makes it realistic.
 - QA report evidence records the API/integration data setup, business realism basis, isolation or cleanup, and command/report evidence.
-- Missing ready-made data was not used as a blocker when fixture, API, seed, isolated DB, container, or safe DB setup was available.

@@ -60,7 +60,7 @@ Before writing an E2E test, collect:
 - Expected visible result and any durable side effect that must be checked.
 - Existing E2E framework, helpers, fixtures, auth setup, and naming conventions.
 
-If an account, permission, plugin, browser, service, or environment is missing, report the exact blocker and resume only after the human confirms it is resolved. Missing ready-made data is not enough to block execution when the data can be created through a fixture, backend API, seed script, or safe test database helper.
+If an account, permission, plugin, browser, service, or environment is missing, report the exact blocker and resume only after the human confirms it is resolved. For data, follow `qa-constitution.md` §Test Data Rules before reporting a blocker.
 
 ## Scenario-First Workflow
 
@@ -116,43 +116,15 @@ Avoid selectors based on generated classes, DOM depth, animation wrappers, trans
 
 ## Test Data And Isolation
 
-E2E tests need deterministic setup and cleanup.
+Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. The unit-level minimal-data exception does not apply to E2E tests.
 
-Prefer:
+E2E adds these layer-specific requirements:
 
-- Existing project fixtures, factories, seed helpers, storage-state helpers, or test data builders.
-- API setup over slow UI setup when it does not skip the behavior under test.
-- Safe test database setup when API setup cannot create the required lifecycle, permission, or relationship state.
-- Realistic synthetic business data that a real user could recognize in the product context. The unit-test minimal-data exception does not apply to E2E tests.
-- Record why the data is business-realistic for this E2E workflow: persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result.
-- Coherent personas, tenant ownership, lifecycle states, dates, amounts, permissions, and related records.
-- Unique names, IDs, or prefixes.
-- Dedicated test roles and tenants.
-- Isolated fixtures or seed data.
-- Cleanup through API or database helper when project conventions allow it.
-- Storage state or login helper for authentication when login is not the behavior under test.
-
-Avoid:
-
-- Production data.
-- Real secrets in test code.
-- Obvious placeholder records such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text.
-- Shared mutable records without cleanup.
-- Test ordering dependencies.
-- Hidden dependency on a previous test.
-- Manual preconditions that are not reported as blockers.
-
-When cleanup is impossible, make the created data unique and document the residual data risk.
-
-Use this setup order by default:
-
-1. Reuse existing E2E fixture, factory, auth helper, or storage state.
-2. Create prerequisite records through backend APIs.
-3. Run a project-approved seed script.
-4. Use a safe test database helper or direct test database setup.
-5. Report a blocker only if none of the above can create the required state safely.
-
-Do not use UI steps to create prerequisites unless the creation workflow itself is under test or the project has no safer setup path.
+- Record why the data is business-realistic for this workflow: persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result.
+- Keep personas, tenant ownership, lifecycle states, dates, amounts, permissions, and related records coherent; use unique names/IDs/prefixes and dedicated test roles and tenants.
+- Prefer API setup over slow UI setup when it does not skip the behavior under test. Use a storage-state or login helper for authentication when login is not the behavior under test.
+- Do not use UI steps to create prerequisites unless the creation workflow itself is under test or the project has no safer setup path.
+- Clean up through an API or database helper when conventions allow; avoid shared mutable records, test-ordering dependencies, and hidden dependence on a previous test. When cleanup is impossible, make the created data unique and document the residual data risk.
 
 ## Flakiness Controls
 
@@ -187,18 +159,11 @@ After creating or modifying E2E tests:
 1. Run the new or modified E2E test.
 2. Run directly affected E2E tests when the change touches shared navigation, auth, fixtures, or helpers.
 3. Record command, result, and evidence location.
-4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
+4. Update the lightweight design `Coverage artifact` per `qa-constitution.md` §Coverage Artifact Format.
 5. List uncovered E2E workflow scenarios and unresolved prerequisite blockers.
 6. Ensure the final `qa-test-report` records E2E data setup evidence, business realism evidence, cleanup, and execution evidence.
 
-Examples:
-
-```text
-frontend/tests/e2e/entity-create.spec.ts#creates entity as authorized user
-tests/e2e/approval-workflow.spec.ts#approver rejects submitted request
-```
-
-Runtime QA validation is not E2E coverage. A manual browser smoke or health check can prove availability, but it does not replace an automated user journey with assertions.
+Runtime QA validation is not E2E coverage (see `qa-constitution.md` §Runtime QA Validation Rule).
 
 ## Review Checklist
 
@@ -208,9 +173,8 @@ Before accepting E2E tests, verify:
 - The in-scope user workflows were enumerated before selecting tests.
 - Lower-layer coverage is used for detailed rules where possible.
 - Persona, preconditions, data setup, assertions, and cleanup are clear.
-- Test data is realistic synthetic business data and matches the user workflow being tested.
+- Test data follows `qa-constitution.md` §Test Data Rules and matches the user workflow being tested.
 - QA report evidence records the E2E data setup, business realism basis, isolation or cleanup, and command/report/trace evidence.
-- Data setup tries fixture, API, seed, or safe test database paths before reporting blockers.
 - Selectors are stable and user-oriented.
 - Assertions verify business-visible results.
 - The test avoids fixed sleeps and hidden ordering dependencies.

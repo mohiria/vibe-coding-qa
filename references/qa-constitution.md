@@ -76,11 +76,25 @@ Before changing production code, the agent must confirm one of the following:
 
 Syntax errors, import errors, test setup failures, fixture failures, missing dependencies, or environment failures do not count as valid Red evidence. They must be classified and fixed or reported before the Red phase can be considered complete.
 
+Test data for Red tests and all other tests must follow the canonical `## Test Data Rules` below.
+
+## Test Data Rules
+
+This is the canonical source for all test data rules. Other references and templates must not restate these rules; they may only add layer-specific evidence detail and point here. Techniques for generating realistic data live in `references/test-data-and-simulation.md`.
+
 Missing ready-made seed data is not enough to claim a blocker. When local services, backend APIs, fixtures, factories, seed scripts, or a safe test database are available, the agent must prepare deterministic test data before execution. Report a blocker only when data cannot be created safely, required rules are unclear, or an external prerequisite is unavailable.
 
-Test data must be realistic synthetic business data when the assertion depends on business meaning. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when the exception is recorded and business realism cannot affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
+Use this default setup order: existing fixture/factory/builder/helper -> backend API setup -> project-approved seed script -> isolated test database, transaction, or container -> safe test database helper. Report a data blocker only when none of these can create the required state safely.
+
+Test data must be realistic synthetic business data when the assertion depends on business meaning. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships that do not contradict each other. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when the exception is recorded and business realism cannot affect the assertion. API/integration and E2E tests must keep realistic synthetic business data; the unit-level minimal-data exception does not apply to them. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records. Never use production data, real personal data, or real secrets.
 
 API/integration and E2E test data evidence must explain why the data is business-realistic. For API/integration, cite the API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship being exercised. For E2E, cite the persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result. Generic statements such as "test data ready" or placeholder-looking records are invalid for API/integration and E2E coverage.
+
+## Coverage Artifact Format
+
+This is the canonical source for coverage-artifact format. Other references must point here instead of restating it.
+
+`Coverage artifact` records the automated test that covers a test point. Use a project-root relative path with an optional `#testName`, for example `backend/src/test/java/com/acme/entity/EntityValidatorTest.java#shouldRejectEmptyName` or `frontend/tests/e2e/entity-permission.spec.ts`. Do not use absolute local machine paths. It may be empty during initial analysis; fill it after the test is created and executed, and keep it aligned through Green and Refactor. Commands are supporting execution evidence only, except when no stable file path exists, in which case record the command and test selector (for example `mvn test -Dtest=EntityApiTest#shouldRejectMissingName`).
 
 ## Requirement Authority And Conflict Rule
 
@@ -169,7 +183,7 @@ Before submitting or declaring work complete:
 - Report any tests that could not be run and explain why.
 - Generate or update `qa-test-report` for any QA cycle that executed tests, created or modified tests, performed regression, API/integration, E2E, runtime validation, or failure analysis. If the report cannot be produced, record the exact blocker, alternative evidence, and remaining risk.
 
-Before reporting a test as not run because of missing data, try the project's data setup options in this order: existing fixture/factory/helper, backend API setup, seed script, safe test database helper or direct test database setup. Use realistic synthetic business data for created records. Do not write production data, use real personal data, or store real secrets in tests.
+Before reporting a test as not run because of missing data, follow the setup order and realism requirements in `## Test Data Rules`.
 
 If an existing test is modified, state the reason:
 

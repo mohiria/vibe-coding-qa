@@ -65,7 +65,7 @@ Test point selection should create representative coverage, not meaningless comb
 
 ## Mixed Design Method
 
-Use black-box, white-box, gray-box, and risk-based methods together.
+The method-to-use summary table is canonical in `qa-constitution.md` §Mixed Testing Method. This section adds how to apply each method during design. Use black-box, white-box, gray-box, and risk-based methods together.
 
 ### Black-Box Design
 
@@ -125,7 +125,7 @@ Increase priority when a test point involves:
 
 ## Test Layer Decision
 
-Choose the lowest effective layer.
+The layer purposes and the "lowest effective layer" rule are canonical in `qa-constitution.md` §Layered Testing. This section maps specific test points to layers. Choose the lowest effective layer.
 
 | Test point                                                           | Default layer                   | Notes                                                                       |
 | -------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------- |
@@ -158,7 +158,7 @@ Required fields:
 | Expected result      | Observable correct behavior.                                                                                                                                                                                                                                                                                                            |
 | Assertion target     | Specific value, status, response field, DB state, UI state, log, or artifact to assert.                                                                                                                                                                                                                                                 |
 | Priority             | P0, P1, P2, or P3.                                                                                                                                                                                                                                                                                                                      |
-| Coverage artifact    | Project-root relative path to the automated test file that covers this test point. It may be empty during initial analysis. After a Red test or other automated test is created and executed, update it with the relative path and optional `#testName`. Commands are supporting evidence only, except when no stable file path exists. |
+| Coverage artifact    | The automated test that covers this test point, formatted per `qa-constitution.md` §Coverage Artifact Format. May be empty during initial analysis; fill it after the test is created and executed. |
 
 For changed existing behavior, also record the requirement relationship and decision authority in the QA report's `Requirement Authority / Conflict Review` section.
 
@@ -250,36 +250,16 @@ Check:
 - Data ownership and permission boundaries.
 - Seed data requirements.
 
-Define test data strategy:
-
-- Use unique test data names or prefixes.
-- Make data creation repeatable.
-- Make cleanup explicit.
-- Use realistic synthetic business data that fits the product domain, workflow, role, tenant, lifecycle state, and field constraints when business meaning affects the assertion.
-- For unit tests of pure technical boundaries, simple formatters, mappers, or non-business assertions, minimal synthetic data is acceptable when the exception is recorded.
-- For API/integration and E2E tests, keep realistic synthetic business data.
-- For API/integration test data, record the API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship that makes the data plausible.
-- For E2E test data, record the persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result that makes the data plausible.
-- Keep related fields coherent: dates, amounts, statuses, ownership, permissions, approval states, tenant boundaries, and relationships must not contradict each other.
-- Avoid obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
-- Prefer existing fixtures, factories, or test helpers when they are already established.
-- Prefer backend API setup for E2E when it does not skip the behavior under test.
-- Use seed scripts or safe test database helpers when API setup cannot create the required lifecycle state, permission state, or relationship.
-- Use isolated database, transaction rollback, containers, or seed scripts when practical.
-- Never use real credentials or production data.
+Define test data strategy following `qa-constitution.md` §Test Data Rules (realism, minimal-data exception, setup order, placeholder blocklist, "missing data is not a blocker"). Generation techniques live in `references/test-data-and-simulation.md`.
 
 For each test point, record:
 
 - Required data state.
 - Data creation method.
-- Business realism basis: which business rule, API contract, lifecycle state, persona, tenant, permission, ownership boundary, product domain, persistence rule, state transition, visible result, or real workflow makes the data plausible.
+- Business realism basis: which business rule, API contract, lifecycle state, persona, tenant, permission, ownership boundary, product domain, persistence rule, state transition, visible result, or real workflow makes the data plausible. For API/integration and E2E rows this is mandatory; for unit-level pure technical assertions, record the minimal-data exception instead.
 - Isolation key, unique prefix, tenant, or transaction boundary.
 - Cleanup method.
 - Whether data setup is part of the behavior under test or only a precondition.
-
-Missing ready-made data is not a blocker when it can be created through project fixtures, factories, APIs, seed scripts, or a safe test database. A data blocker is valid only when no safe setup path exists, the needed data rules are unclear, a required credential or permission is missing, or the target environment must not be mutated.
-
-Minimal synthetic data is acceptable for pure technical boundary tests only when the business shape cannot affect the assertion. Record the reason in the test data plan; otherwise, placeholder-looking data is a test design defect.
 
 ## Execution Support
 
@@ -319,20 +299,7 @@ For each test point:
 2. If execution is blocked by prerequisites, report the missing prerequisite to the human owner and mark the item as blocked only until the human confirms the prerequisite is resolved.
 3. List any test points that remain uncovered and any prerequisite blockers that remain unresolved.
 
-`Coverage artifact` should use a project-root relative path and may include `#testName`, for example:
-
-```text
-backend/src/test/java/com/acme/entity/EntityValidatorTest.java#shouldRejectEmptyName
-backend/src/test/java/com/acme/entity/EntityApiTest.java#shouldRejectMissingName
-frontend/tests/e2e/entity-permission.spec.ts
-```
-
-Do not use absolute local machine paths. Commands are supporting evidence for execution. If no stable file path exists and only a command covers the test point, record the command and the relevant test selector, for example:
-
-```text
-pnpm test -- entity-validator
-mvn test -Dtest=EntityApiTest#shouldRejectMissingName
-```
+Record `Coverage artifact` per `qa-constitution.md` §Coverage Artifact Format.
 
 Create automated tests when:
 
@@ -368,10 +335,7 @@ Before generating scripts, verify:
 - E2E scenarios have persona, path, assertion, data, and cleanup.
 - Regression risks were identified for changed behavior.
 - Initial regression impact was recorded in the lightweight design, including existing tests to rerun or the reason none are needed.
-- Test data setup and cleanup are clear.
-- Test data uses realistic synthetic business records, or records an explicit minimal-data exception for unit-level pure technical assertions.
-- Missing ready-made data was not used as a blocker when API, fixture, seed, or safe test DB setup was available.
-- No test point relies on real secrets or production data.
+- Test data setup and cleanup are clear, and follow `qa-constitution.md` §Test Data Rules (realism or documented minimal-data exception; missing data not treated as a blocker; no real secrets or production data).
 
 After creating or executing tests, verify:
 
@@ -380,7 +344,7 @@ After creating or executing tests, verify:
 - Regression tests selected by the lightweight design or separate regression analysis were executed or explicitly blocked.
 - Red tests failed for the expected behavior reason before implementation when strict TDD applies.
 - Syntax, import, fixture, setup, or environment failures were not counted as valid Red evidence.
-- Coverage artifacts use project-root relative paths, with optional `#testName`.
+- Coverage artifacts follow `qa-constitution.md` §Coverage Artifact Format.
 - Commands, logs, screenshots, traces, or reports are recorded as execution evidence when relevant.
 - Uncovered test points and unresolved prerequisite blockers are listed explicitly.
 - Runtime QA validation, if performed, is treated only as availability smoke evidence and not counted as Unit/API/E2E business coverage.
