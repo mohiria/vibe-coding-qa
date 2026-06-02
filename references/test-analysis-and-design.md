@@ -258,6 +258,8 @@ Define test data strategy:
 - Use realistic synthetic business data that fits the product domain, workflow, role, tenant, lifecycle state, and field constraints when business meaning affects the assertion.
 - For unit tests of pure technical boundaries, simple formatters, mappers, or non-business assertions, minimal synthetic data is acceptable when the exception is recorded.
 - For API/integration and E2E tests, keep realistic synthetic business data.
+- For API/integration test data, record the API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship that makes the data plausible.
+- For E2E test data, record the persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result that makes the data plausible.
 - Keep related fields coherent: dates, amounts, statuses, ownership, permissions, approval states, tenant boundaries, and relationships must not contradict each other.
 - Avoid obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
 - Prefer existing fixtures, factories, or test helpers when they are already established.
@@ -270,7 +272,7 @@ For each test point, record:
 
 - Required data state.
 - Data creation method.
-- Business realism basis: which business rule, lifecycle state, persona, tenant, product domain, or real workflow makes the data plausible.
+- Business realism basis: which business rule, API contract, lifecycle state, persona, tenant, permission, ownership boundary, product domain, persistence rule, state transition, visible result, or real workflow makes the data plausible.
 - Isolation key, unique prefix, tenant, or transaction boundary.
 - Cleanup method.
 - Whether data setup is part of the behavior under test or only a precondition.
@@ -382,3 +384,4 @@ After creating or executing tests, verify:
 - Commands, logs, screenshots, traces, or reports are recorded as execution evidence when relevant.
 - Uncovered test points and unresolved prerequisite blockers are listed explicitly.
 - Runtime QA validation, if performed, is treated only as availability smoke evidence and not counted as Unit/API/E2E business coverage.
+- A `qa-test-report` exists or has an exact blocker, alternative evidence, and remaining risk recorded.

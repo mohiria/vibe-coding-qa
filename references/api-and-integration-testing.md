@@ -104,6 +104,7 @@ Data rules:
 
 - Use unique names, IDs, or prefixes for created records.
 - Use realistic synthetic business records that satisfy product-domain rules, lifecycle state, ownership, permissions, and relationship constraints. The unit-test minimal-data exception does not apply to API or integration tests.
+- Record why the data is business-realistic for this API/integration boundary: API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship.
 - Keep request payloads, persisted state, and expected side effects coherent; do not combine impossible statuses, dates, owners, tenants, or approval states.
 - Avoid obvious placeholder values such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text in business-facing records.
 - Do not depend on production data.
@@ -182,6 +183,7 @@ After creating or modifying API/integration tests:
 3. Record the command and result as evidence.
 4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
 5. List uncovered API/integration test points and unresolved prerequisite blockers.
+6. Ensure the final `qa-test-report` records API/integration data setup evidence, business realism evidence, cleanup, and execution evidence.
 
 Examples:
 
@@ -207,4 +209,5 @@ Before accepting API or integration tests, verify:
 - Coverage artifacts were updated after execution.
 - Remaining uncovered test points and unresolved prerequisite blockers are explicit.
 - Test data is realistic synthetic business data that matches the API contract, persistence rule, permission state, or integration behavior.
+- QA report evidence records the API/integration data setup, business realism basis, isolation or cleanup, and command/report evidence.
 - Missing ready-made data was not used as a blocker when fixture, API, seed, isolated DB, container, or safe DB setup was available.

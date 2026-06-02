@@ -1,7 +1,5 @@
 # Lightweight Test Design
 
-Purpose: decide what to test, which layer should cover it, what data is needed, what existing behavior may regress, and what must exist before production code changes. Keep final execution evidence in the QA test report.
-
 Replace or delete all example rows before using this artifact for a real project.
 
 ## Context
@@ -50,6 +48,7 @@ Use when E2E is in scope. Enumerate user workflows before selecting browser test
 
 Plan deterministic setup, isolation, cleanup, and realistic synthetic business data.
 For unit-level pure technical assertions only, record a minimal-data exception in `Business realism basis`. API/integration and E2E rows must use realistic synthetic business data.
+For API/integration rows, cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. For E2E rows, cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
 
 | Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
 | --- | --- | --- | --- | --- | --- | --- |

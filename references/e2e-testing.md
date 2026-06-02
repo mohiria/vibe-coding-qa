@@ -124,6 +124,7 @@ Prefer:
 - API setup over slow UI setup when it does not skip the behavior under test.
 - Safe test database setup when API setup cannot create the required lifecycle, permission, or relationship state.
 - Realistic synthetic business data that a real user could recognize in the product context. The unit-test minimal-data exception does not apply to E2E tests.
+- Record why the data is business-realistic for this E2E workflow: persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result.
 - Coherent personas, tenant ownership, lifecycle states, dates, amounts, permissions, and related records.
 - Unique names, IDs, or prefixes.
 - Dedicated test roles and tenants.
@@ -188,6 +189,7 @@ After creating or modifying E2E tests:
 3. Record command, result, and evidence location.
 4. Update the lightweight design `Coverage artifact` with the project-root relative test path and optional `#testName`.
 5. List uncovered E2E workflow scenarios and unresolved prerequisite blockers.
+6. Ensure the final `qa-test-report` records E2E data setup evidence, business realism evidence, cleanup, and execution evidence.
 
 Examples:
 
@@ -207,6 +209,7 @@ Before accepting E2E tests, verify:
 - Lower-layer coverage is used for detailed rules where possible.
 - Persona, preconditions, data setup, assertions, and cleanup are clear.
 - Test data is realistic synthetic business data and matches the user workflow being tested.
+- QA report evidence records the E2E data setup, business realism basis, isolation or cleanup, and command/report/trace evidence.
 - Data setup tries fixture, API, seed, or safe test database paths before reporting blockers.
 - Selectors are stable and user-oriented.
 - Assertions verify business-visible results.

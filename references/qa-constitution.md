@@ -80,6 +80,8 @@ Missing ready-made seed data is not enough to claim a blocker. When local servic
 
 Test data must be realistic synthetic business data when the assertion depends on business meaning. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when the exception is recorded and business realism cannot affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records.
 
+API/integration and E2E test data evidence must explain why the data is business-realistic. For API/integration, cite the API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship being exercised. For E2E, cite the persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result. Generic statements such as "test data ready" or placeholder-looking records are invalid for API/integration and E2E coverage.
+
 ## Requirement Authority And Conflict Rule
 
 Expected behavior must come from the best available authority, not blindly from either old Spec documents or the current implementation.
@@ -165,6 +167,7 @@ Before submitting or declaring work complete:
 - Merge planned design coverage and regression coverage into one execution scope. If the lightweight test design, its regression impact section, or a separate regression impact analysis names an in-scope executable item, that item must be executed, explicitly blocked, or marked not applicable with a reason.
 - Close coverage for in-scope executable test points by recording coverage artifacts. If prerequisites are missing, report the exact blocker to the human owner, resume after the human confirms it is resolved, then execute.
 - Report any tests that could not be run and explain why.
+- Generate or update `qa-test-report` for any QA cycle that executed tests, created or modified tests, performed regression, API/integration, E2E, runtime validation, or failure analysis. If the report cannot be produced, record the exact blocker, alternative evidence, and remaining risk.
 
 Before reporting a test as not run because of missing data, try the project's data setup options in this order: existing fixture/factory/helper, backend API setup, seed script, safe test database helper or direct test database setup. Use realistic synthetic business data for created records. Do not write production data, use real personal data, or store real secrets in tests.
 

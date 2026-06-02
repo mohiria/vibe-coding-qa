@@ -1,7 +1,5 @@
 # Regression Impact Analysis
 
-Purpose: expanded regression scope for high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical changes. For normal changes, record regression impact inside `lightweight-test-design.md` instead of creating this separate artifact.
-
 Replace or delete all example rows before using this artifact for a real project.
 
 ## Change Summary

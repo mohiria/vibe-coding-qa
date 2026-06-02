@@ -23,7 +23,7 @@ Follow this order by default:
 10. Perform coverage closure: update coverage artifacts, list uncovered test points, and report unresolved prerequisite blockers.
 11. Run or plan runtime QA validation only when the environment or deployment must prove basic availability.
 12. If tests fail, classify the failure before changing code or tests.
-13. In the final QA report, include TDD evidence, execution source, regression evidence, and requirement authority or conflict review when relevant.
+13. Generate or update `qa-test-report` at the end of the QA cycle. Include TDD evidence, execution source, regression evidence, API/integration and E2E test data evidence, and requirement authority or conflict review when relevant.
 
 ## TDD Position
 
@@ -65,24 +65,26 @@ Load only the reference needed for the current task.
 - Cover all in-scope user workflows at the E2E scenario level. Do not use E2E to exhaustively cover every field combination, branch, or API contract detail when a lower layer can prove it more reliably.
 - Test data setup is part of test design and execution. Missing ready-made seed data is not a blocker when local services, APIs, or a safe test database setup path can create the required data.
 - Test data must be realistic synthetic business data when the assertion depends on business meaning: plausible names, statuses, dates, amounts, ownership, permissions, and relationships that fit the product domain. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when they record why business realism does not affect the assertion. API/integration and E2E tests must keep realistic synthetic business data. Obvious placeholder data is invalid for business-facing records.
+- API/integration and E2E test data evidence must record why the data is business-realistic. API/integration evidence should cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. E2E evidence should cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
 - Treat regression as impact-based: directly affected old behavior must be tested; unrelated old behavior can be left to scheduled full regression.
 - Runtime QA validation is execution support and final availability smoke validation. It does not count as business test coverage and must not replace unit, API, or E2E testing.
 - Test conclusions must cite evidence: command output, response body, logs, screenshots, traces, reports, or CI output.
+- A QA cycle that executes tests, creates or modifies tests, performs regression, API/integration, E2E, runtime validation, or failure analysis must produce or update `qa-test-report`. If the report cannot be produced, record the exact blocker, alternative evidence, and remaining risk.
 
 ## Deliverables
 
-Use the templates only when they help the task:
+Use the templates according to the QA cycle:
 
 - `templates/lightweight-test-design.md` for test design before script generation, including initial regression impact.
 - `templates/regression-impact-analysis.md` for expanded regression scope when the change is high-risk, cross-module, requirement-conflicting, heavily test-changing, or release-critical.
 - `templates/bug-report.md` for defects found during testing, review, or validation.
-- `templates/qa-test-report.md` for the final QA report, including runtime QA validation evidence when required.
+- `templates/qa-test-report.md` is the default completion artifact for any QA cycle with test execution, generated or modified tests, regression, API/integration, E2E, runtime validation, or failure analysis. Include runtime QA validation evidence when required.
 
 Template artifacts are working documents for both AI execution and human review. Keep each artifact focused on its purpose: design templates decide what should be tested before code, regression templates justify what old behavior to rerun, and final reports summarize execution evidence and remaining risk. Use short realistic examples when they clarify how to fill a section, but do not turn templates into full rule manuals; detailed testing rules belong in `references/`.
 
 When a template file is needed, copy or adapt its structure into the project artifact requested by the user. Do not create unnecessary documents.
 
-Final QA reports should use structured evidence summaries instead of long raw logs. Record execution evidence, behavioral evidence, coverage evidence, TDD Red/Green/Regression evidence, and unresolved requirement conflicts in the relevant report sections.
+Final QA reports should use structured evidence summaries instead of long raw logs. Record execution evidence, behavioral evidence, coverage evidence, API/integration and E2E test data evidence, TDD Red/Green/Regression evidence, and unresolved requirement conflicts in the relevant report sections. Run `node scripts/qa_artifacts.mjs check qa-test-report <artifact-path>` when practical and report unresolved FAIL or WARN findings.
 
 ## Script
 

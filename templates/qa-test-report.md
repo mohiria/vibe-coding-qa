@@ -1,7 +1,5 @@
 # QA Test Report
 
-Purpose: summarize what was actually executed, what behavior was proven, what data was prepared, and what risk remains. Do not repeat the full pre-code test design.
-
 Replace or delete all example rows before using this artifact for a real project.
 
 ## Conclusion
@@ -67,6 +65,7 @@ Use when E2E is in scope. Record workflow coverage, not every field or API varia
 
 Record how required data was created, why it is business-realistic, and how it was isolated or cleaned up.
 For unit-level pure technical assertions only, record a minimal-data exception in `Business realism evidence`. API/integration and E2E rows must use realistic synthetic business data.
+For API/integration rows, cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. For E2E rows, cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
 
 | Test / scenario | Required data | Business realism evidence | Setup method | Cleanup | Evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |

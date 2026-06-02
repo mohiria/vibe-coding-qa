@@ -223,6 +223,13 @@ function rowContainsValue(row, valuePattern) {
     .some((cell) => valuePattern.test(cell.trim()));
 }
 
+function rowCells(row) {
+  return row
+    .split('|')
+    .slice(1, -1)
+    .map((cell) => cell.trim());
+}
+
 function sectionHasNonPlaceholderTableRow(section) {
   return tableRows(section).some(rowHasNonPlaceholderContent);
 }
@@ -249,6 +256,15 @@ function sectionHeaderCells(section) {
 
 function tableColumnIndex(section, columnName) {
   return sectionHeaderCells(section).findIndex((cell) => cell.toLowerCase() === columnName.toLowerCase());
+}
+
+function cellValue(row, section, columnName) {
+  const columnIndex = tableColumnIndex(section, columnName);
+  if (columnIndex < 0) {
+    return '';
+  }
+
+  return rowCells(row)[columnIndex] || '';
 }
 
 function sectionHasNonPlaceholderColumnValue(section, columnName) {
@@ -348,6 +364,132 @@ function addRetainedExampleWarnings(findings, templateName, content) {
   }
 }
 
+function scopeHasLayer(scope, layerPattern) {
+  return tableRows(scope).some((row) => {
+    const cells = rowCells(row);
+    return cells.length >= 2 && layerPattern.test(cells[0]) && /^yes$/i.test(cells[1]);
+  });
+}
+
+function sectionHasLayerRow(section, layerPattern) {
+  return tableRows(section).some((row) => rowHasNonPlaceholderContent(row) && layerPattern.test(row));
+}
+
+function businessRealismEvidenceIsWeak(value) {
+  const normalized = value.trim().replace(/`/g, '').toLowerCase();
+  if (!normalized) {
+    return true;
+  }
+
+  const weakPatterns = [
+    /\b(foo|bar|test123|asdf|lorem|acme inc\.?|张三)\b/i,
+    /^test data (ready|created|setup)$/i,
+    /^data (ready|created|setup)$/i,
+    /^ready$/i,
+    /^n\/a$/i,
+    /^not applicable$/i,
+    /^technical boundary$/i,
+    /^minimal[- ]data exception$/i,
+  ];
+
+  return weakPatterns.some((pattern) => pattern.test(normalized));
+}
+
+function businessRealismEvidenceHasDomainSignal(value) {
+  const domainSignals = [
+    /api contract/i,
+    /permission/i,
+    /role/i,
+    /persona/i,
+    /workflow/i,
+    /lifecycle/i,
+    /tenant/i,
+    /ownership/i,
+    /owner/i,
+    /state transition/i,
+    /status/i,
+    /persistence/i,
+    /contract/i,
+    /business rule/i,
+    /relationship/i,
+    /visible result/i,
+    /entry point/i,
+    /approval/i,
+    /auth/i,
+    /authorization/i,
+    /customer/i,
+    /account/i,
+    /order/i,
+    /invoice/i,
+    /amount/i,
+    /date/i,
+    /state/i,
+    /权限/,
+    /角色/,
+    /流程/,
+    /生命周期/,
+    /租户/,
+    /归属/,
+    /状态/,
+    /业务/,
+    /审批/,
+    /金额/,
+    /日期/,
+  ];
+
+  return domainSignals.some((pattern) => pattern.test(value));
+}
+
+function addBusinessRealismFindings(findings, templateName, section, options) {
+  const {
+    sectionName,
+    evidenceColumn,
+    required,
+    layerPattern,
+    layerLabel,
+    rowMatches,
+  } = options;
+
+  if (!section) {
+    if (required) {
+      addFinding(findings, 'FAIL', templateName, `${sectionName} is required for ${layerLabel} data evidence`);
+    }
+    return;
+  }
+
+  const evidenceIndex = tableColumnIndex(section, evidenceColumn);
+  if (evidenceIndex < 0) {
+    addFinding(findings, 'FAIL', templateName, `${sectionName} missing required column "${evidenceColumn}"`);
+    return;
+  }
+
+  const matchingRows = tableRows(section).filter((row) => {
+    if (!rowHasNonPlaceholderContent(row)) {
+      return false;
+    }
+    if (rowMatches) {
+      return rowMatches(row, section);
+    }
+    return !layerPattern || layerPattern.test(row);
+  });
+
+  if (required && matchingRows.length === 0) {
+    addFinding(findings, 'FAIL', templateName, `${sectionName} has no ${layerLabel} data evidence row`);
+    return;
+  }
+
+  for (const row of matchingRows) {
+    const evidence = rowCells(row)[evidenceIndex] || '';
+    if (businessRealismEvidenceIsWeak(evidence)) {
+      addFinding(findings, 'FAIL', templateName, `${sectionName} has weak ${layerLabel} business realism evidence: "${evidence}"`);
+      continue;
+    }
+    if (!businessRealismEvidenceHasDomainSignal(evidence)) {
+      addFinding(findings, 'WARN', templateName, `${sectionName} ${layerLabel} business realism evidence lacks an obvious business signal: "${evidence}"`);
+    }
+  }
+}
+
 function checkQaTestReport(content) {
   const templateName = 'qa-test-report';
   const findings = [];
@@ -383,10 +525,12 @@ function checkQaTestReport(content) {
   }
 
   const scope = getSection(content, 'Scope') || '';
-  if (/E2E\s*\|\s*Yes/i.test(scope)) {
+  const apiInScope = scopeHasLayer(scope, /^API\/integration$/i);
+  const e2eInScope = scopeHasLayer(scope, /^E2E$/i);
+  if (e2eInScope) {
     const userScenarioCoverage = getSection(content, 'User Scenario Coverage');
     if (!sectionHasNonPlaceholderTableRow(userScenarioCoverage)) {
-      addFinding(findings, 'WARN', templateName, 'E2E is in scope but User Scenario Coverage has no non-placeholder row');
+      addFinding(findings, 'FAIL', templateName, 'E2E is in scope but User Scenario Coverage has no non-placeholder row');
     }
   }
 
@@ -398,6 +542,24 @@ function checkQaTestReport(content) {
   if (!sectionHasNonPlaceholderColumnValue(testDataSetupEvidence, 'Business realism evidence')) {
     addFinding(findings, 'FAIL', templateName, 'Test Data Setup Evidence has no business realism evidence');
   }
+  addBusinessRealismFindings(findings, templateName, testDataSetupEvidence, {
+    sectionName: 'Test Data Setup Evidence',
+    evidenceColumn: 'Business realism evidence',
+    required: apiInScope,
+    rowMatches: (row, section) => /api\/integration|api|integration/i.test(
+      `${cellValue(row, section, 'Test / scenario')} ${cellValue(row, section, 'Required data')} ${cellValue(row, section, 'Business realism evidence')}`,
+    ),
+    layerLabel: 'API/integration',
+  });
+  addBusinessRealismFindings(findings, templateName, testDataSetupEvidence, {
+    sectionName: 'Test Data Setup Evidence',
+    evidenceColumn: 'Business realism evidence',
+    required: e2eInScope,
+    rowMatches: (row, section) => /e2e|workflow|browser|scenario/i.test(
+      `${cellValue(row, section, 'Test / scenario')} ${cellValue(row, section, 'Required data')} ${cellValue(row, section, 'Business realism evidence')}`,
+    ),
+    layerLabel: 'E2E',
+  });
 
   const tddSummary = getSection(content, 'TDD Summary');
   const nonTddExceptions = getSection(content, 'Non-TDD Exceptions');
@@ -452,6 +614,8 @@ function checkLightweightTestDesign(content) {
   if (!sectionHasNonPlaceholderTableRow(testPoints)) {
     addFinding(findings, 'FAIL', templateName, 'Test Points has no non-placeholder row');
   }
+  const apiInDesign = sectionHasLayerRow(testPoints, /api\/integration/i);
+  const e2eInDesign = sectionHasLayerRow(testPoints, /e2e/i) || sectionHasNonPlaceholderTableRow(getSection(content, 'E2E Scenarios'));
 
   const userScenarioMatrix = getSection(content, 'User Scenario Matrix');
   if (!sectionHasNonPlaceholderTableRow(userScenarioMatrix)) {
@@ -466,6 +630,24 @@ function checkLightweightTestDesign(content) {
   if (!sectionHasNonPlaceholderColumnValue(testDataPlan, 'Business realism basis')) {
     addFinding(findings, 'FAIL', templateName, 'Test Data Plan has no business realism basis');
   }
+  addBusinessRealismFindings(findings, templateName, testDataPlan, {
+    sectionName: 'Test Data Plan',
+    evidenceColumn: 'Business realism basis',
+    required: apiInDesign,
+    rowMatches: (row, section) => /api\/integration|api|integration/i.test(
+      `${cellValue(row, section, 'Test point / scenario')} ${cellValue(row, section, 'Required data state')} ${cellValue(row, section, 'Business realism basis')}`,
+    ),
+    layerLabel: 'API/integration',
+  });
+  addBusinessRealismFindings(findings, templateName, testDataPlan, {
+    sectionName: 'Test Data Plan',
+    evidenceColumn: 'Business realism basis',
+    required: e2eInDesign,
+    rowMatches: (row, section) => /e2e|workflow|browser|scenario/i.test(
+      `${cellValue(row, section, 'Test point / scenario')} ${cellValue(row, section, 'Required data state')} ${cellValue(row, section, 'Business realism basis')}`,
+    ),
+    layerLabel: 'E2E',
+  });
 
   const regressionImpact = getSection(content, 'Regression Impact');
   if (!sectionHasNonPlaceholderTableRow(regressionImpact)) {
