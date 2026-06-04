@@ -41,7 +41,7 @@ Use for strict TDD candidates. Red evidence must be an expected behavior failure
 
 Record whether the QA gate happened before production code changed.
 
-- OpenSpec change / task source:
+- Requirement / task source:
 - Test design artifact:
 - Production code change gate result: Passed / BLOCKED / Violation recorded / Not applicable
 - Pre-code evidence type: Red / existing failing test / non-TDD exception / blocker

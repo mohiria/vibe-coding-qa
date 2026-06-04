@@ -42,7 +42,6 @@ Load only the reference needed for the current task.
 | --- | --- |
 | Establish mandatory rules, quality gates, or anti-fake-test policy | `references/qa-constitution.md` |
 | Extract test points or decide test layers | `references/test-analysis-and-design.md` |
-| Generate project-level agent/OpenSpec orchestration instructions | `references/agent-openspec-orchestration.md` |
 | Generate realistic synthetic / simulated test data | `references/test-data-and-simulation.md` |
 | Choose test framework or runner when project convention is unclear | `references/test-tooling.md` |
 | Generate or review unit tests | `references/unit-testing.md` |
@@ -63,7 +62,6 @@ Load only the reference needed for the current task.
 - Test data follows the canonical `## Test Data Rules`: realistic synthetic business data when meaning matters, a documented minimal-data exception only for unit-level technical assertions, and "missing ready-made data is not a blocker." Generation techniques are in `references/test-data-and-simulation.md`.
 - Runtime QA validation is availability smoke only; it never counts as Unit/API/E2E business coverage.
 - Cite evidence for every conclusion, and produce or update `qa-test-report` for any QA cycle (or record the exact blocker, alternative evidence, and remaining risk).
-- When a project uses OpenSpec, OpenSpec owns behavior/change artifacts and this skill owns the pre-code TDD gate. `/opsx:apply` must not be treated as permission to write production code directly; each production-code task must pass the QA gate first. See `references/agent-openspec-orchestration.md`.
 
 ## Deliverables
 

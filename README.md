@@ -34,8 +34,7 @@
 |   |-- runtime-qa-validation.md
 |   |-- failure-analysis.md
 |   |-- test-data-and-simulation.md
-|   |-- test-tooling.md
-|   `-- agent-openspec-orchestration.md
+|   `-- test-tooling.md
 |-- templates/
 |   |-- lightweight-test-design.md
 |   |-- qa-test-report.md
@@ -68,10 +67,10 @@
 
 ```bash
 node scripts/qa_artifacts.mjs list
-node scripts/qa_artifacts.mjs create lightweight-test-design openspec/changes/<change>/qa/lightweight-test-design.md
-node scripts/qa_artifacts.mjs create qa-test-report openspec/changes/<change>/qa/qa-test-report.md
-node scripts/qa_artifacts.mjs check lightweight-test-design openspec/changes/<change>/qa/lightweight-test-design.md
-node scripts/qa_artifacts.mjs check qa-test-report openspec/changes/<change>/qa/qa-test-report.md
+node scripts/qa_artifacts.mjs create lightweight-test-design docs/qa/<change>/lightweight-test-design.md
+node scripts/qa_artifacts.mjs create qa-test-report docs/qa/<change>/qa-test-report.md
+node scripts/qa_artifacts.mjs check lightweight-test-design docs/qa/<change>/lightweight-test-design.md
+node scripts/qa_artifacts.mjs check qa-test-report docs/qa/<change>/qa-test-report.md
 ```
 
 `check` 只做确定性结构检查。它能发现缺少 `Pre-Code TDD Gate`、缺少 `TDD Sequence Evidence`、把 compile error 当 Red 等问题，但不能替代真实测试执行和人工/agent 的工程判断。
@@ -110,22 +109,7 @@ API/集成测试和 E2E 测试必须使用模拟真实业务数据，并说明�
 测试结束后必须生成或更新 `qa-test-report.md`，记录 TDD 顺序证据、测试执行结果、回归范围、测试数据证据、未运行测试、阻塞项和剩余风险。事后补写的测试不得伪装成正常 TDD，必须记录为 TDD violation 或 non-TDD exception。
 ```
 
-如果项目同时使用 OpenSpec，建议再加入：
-
-```markdown
-## OpenSpec + Vibe Coding QA 两阶段流程
-
-OpenSpec 负责把需求转成行为契约，`vibe-coding-qa` 负责通过 TDD 落地。
-
-- `/opsx:explore <topic>`：只研究和澄清，不实现。
-- `/opsx:propose <change>`：生成 proposal、design、tasks 和 delta spec。
-- `/opsx:apply <change>`：逐 task 执行。每个会修改生产代码的 task 前，必须先创建或更新 QA lightweight test design，产生有效 Red 证据或记录允许的例外/阻塞，然后才能实现最小生产代码到 Green。
-- `/opsx:archive <change>`：实现、测试、回归和 QA report 完成后，再归档 delta spec。
-
-QA artifact 默认放在 `openspec/changes/<change>/qa/`。自动化测试代码放在项目测试目录中，不放在 `qa/` 下。
-```
-
-如果项目不用 OpenSpec，也可以使用同样的 QA gate，只需把需求来源替换成 PRD、issue、用户故事、API contract 或用户确认。
+如果项目使用专门的需求管理、规格管理或 agent command workflow，请在项目级 agent 指令文件中自行定义它和本 QA gate 的协作顺序。这个 skill 只规定通用 QA/TDD 约束，不绑定任何特定需求工具。
 
 ## 后续优化方向
 
@@ -134,4 +118,3 @@ QA artifact 默认放在 `openspec/changes/<change>/qa/`。自动化测试代码
 - Agent-specific instruction generator：基于通用约束生成 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md` 或 OpenCode 指令片段。
 - 技术栈示例：补充 Java/Spring、Node/Express、React/Vue、Playwright、Testcontainers 等常见项目的落地样例。
 - CI 集成：提供 GitHub Actions 或其他 CI 示例，在 PR 中检查 QA artifact、测试执行证据和 TDD gate。
-

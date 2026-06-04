@@ -32,7 +32,7 @@ Use only when the change touches existing behavior, tests, API contracts, data m
 
 Use before changing production code. If production code was already changed before this gate, record it as a TDD violation or Non-TDD Exception.
 
-- OpenSpec change / task source:
+- Requirement / task source:
 - Behavior contract source:
 - Ready for production code change: Yes / No / BLOCKED
 - Gate evidence type: Red / existing failing test / non-TDD exception / blocker
