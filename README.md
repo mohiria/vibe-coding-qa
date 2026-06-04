@@ -22,8 +22,6 @@
 .
 |-- SKILL.md
 |-- README.md
-|-- agents/
-|   `-- openai.yaml
 |-- references/
 |   |-- qa-constitution.md
 |   |-- test-analysis-and-design.md
@@ -48,7 +46,6 @@
 - `references/`：详细规则和方法。`qa-constitution.md` 是最高优先级规则，不应被其他文档弱化。
 - `templates/`：项目中实际产出的 QA artifact 骨架。
 - `scripts/qa_artifacts.mjs`：模板创建和结构检查工具，只检查 artifact 结构和明显占位内容，不替代工程判断。
-- `agents/`：面向特定 agent 平台的元数据或安装配置。
 
 ## 如何使用
 

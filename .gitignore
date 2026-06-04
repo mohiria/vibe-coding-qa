@@ -2,3 +2,5 @@
 .claude
 reports/
 .codex/
+openspec/
+agents/
