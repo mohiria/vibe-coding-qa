@@ -76,6 +76,19 @@ Before changing production code, the agent must confirm one of the following:
 
 Syntax errors, import errors, test setup failures, fixture failures, missing dependencies, or environment failures do not count as valid Red evidence. They must be classified and fixed or reported before the Red phase can be considered complete.
 
+### Red In Statically Typed Languages
+
+In statically typed languages such as Java, Kotlin, TypeScript, Go, or C#, a test that references a missing method, class, route handler, mapper, controller, or endpoint may fail to compile before it can execute an assertion. A compile failure is not Red evidence. It means the minimal compilable stub step was skipped.
+
+Use this sequence when the target symbol does not exist yet:
+
+1. Create the smallest compilable production stub with the intended public signature or route. The stub may return `null`, throw `UnsupportedOperationException`, return an empty value, or return a placeholder response. Do not implement the real behavior.
+2. Write or select the Red test against that signature or route.
+3. Run the test and capture an assertion-level behavior failure, such as wrong status code, missing response field, empty result, or `expected approved got pending`.
+4. Implement the minimum behavior needed to make the assertion pass.
+
+Do not record compile errors, missing symbols, `NoSuchMethod`, `method not found`, `class not found`, `endpoint not found because no route exists`, import errors, fixture failures, environment failures, or database connection failures as Red evidence. Those are blockers or setup failures until the test can run and fail on behavior.
+
 Test data for Red tests and all other tests must follow the canonical `## Test Data Rules` below.
 
 ## Test Data Rules

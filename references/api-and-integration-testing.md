@@ -53,13 +53,14 @@ Use strict Red-Green-Refactor for API and integration behavior when the contract
 
 1. Select one in-scope executable test point from the lightweight design.
 2. Find the smallest existing API/integration test file or create one following project conventions.
-3. Write the Red test at the boundary that proves the behavior.
-4. Run the new or directly relevant test and confirm it fails for the expected behavior reason, not because of syntax, import, setup, fixture, environment, database, or service failure.
-5. Implement the minimum production change needed to pass.
-6. Rerun the new or modified test.
-7. Run directly affected existing API/integration tests and relevant unit tests.
-8. Refactor only with tests passing.
-9. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
+3. In a statically typed stack, create the smallest compilable stub for the target API, mapper, controller, route handler, service method, or DTO shape before writing the Red test when the target symbol does not exist. The stub must expose the intended signature or route but must not implement the real behavior.
+4. Write the Red test at the boundary that proves the behavior.
+5. Run the new or directly relevant test and confirm it fails for the expected behavior reason, such as wrong status, missing field, wrong persisted state, or empty result where data is expected. Syntax, import, compile, missing symbol, setup, fixture, environment, database, or service failures are blockers/setup failures, not Red evidence.
+6. Implement the minimum production change needed to pass.
+7. Rerun the new or modified test.
+8. Run directly affected existing API/integration tests and relevant unit tests.
+9. Refactor only with tests passing.
+10. Update `Coverage artifact` with the project-root relative test path and optional `#testName`.
 
 If the Red test cannot be created or executed because a database, service, credential, plugin, account, seed, or permission is missing, follow the setup order in `qa-constitution.md` §Test Data Rules before reporting a blocker, then resume after the human confirms it is resolved.
 

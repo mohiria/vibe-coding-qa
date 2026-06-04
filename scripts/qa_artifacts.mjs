@@ -308,6 +308,26 @@ function sectionHasNonEmptyField(section, fieldName) {
   return Boolean(match && match[1].trim());
 }
 
+function sectionFieldValue(section, fieldName) {
+  if (!section) {
+    return '';
+  }
+
+  const escapedFieldName = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^-\\s*${escapedFieldName}:\\s*(.*)$`, 'im');
+  const match = section.match(pattern);
+  return match ? match[1].trim() : '';
+}
+
+function normalizedFieldValue(value) {
+  return value.trim().replace(/`/g, '');
+}
+
+function isUnfilledChoiceField(value, placeholderPattern) {
+  const normalized = normalizedFieldValue(value);
+  return !normalized || placeholderPattern.test(normalized);
+}
+
 function sectionHasValueInNonPlaceholderRow(section, columnName) {
   const columnIndex = tableColumnIndex(section, columnName);
   if (columnIndex < 0) {
@@ -487,6 +507,150 @@ function addBusinessRealismFindings(findings, templateName, section, options) {
   }
 }
 
+function redFailureReasonIsInvalid(value) {
+  const normalized = value.trim().replace(/`/g, '').toLowerCase();
+  if (!normalized) {
+    return false;
+  }
+
+  const invalidPatterns = [
+    /compile error/i,
+    /compilation/i,
+    /does not compile/i,
+    /nosuchmethod/i,
+    /method not found/i,
+    /class not found/i,
+    /endpoint not found/i,
+    /route not found because no route exists/i,
+    /missing method/i,
+    /missing class/i,
+    /missing endpoint/i,
+    /missing symbol/i,
+    /cannot find symbol/i,
+    /import error/i,
+    /fixture/i,
+    /environment/i,
+    /db connection/i,
+    /database connection/i,
+    /setup failure/i,
+    /阻塞型/,
+    /编译缺失/,
+    /编译失败/,
+    /方法不存在/,
+    /类不存在/,
+    /端点不存在/,
+    /导入错误/,
+    /环境失败/,
+    /数据库连接/,
+  ];
+
+  return invalidPatterns.some((pattern) => pattern.test(normalized));
+}
+
+function addInvalidRedReasonFindings(findings, templateName, section, sectionName) {
+  if (!section) {
+    return;
+  }
+
+  const redReasonIndex = tableColumnIndex(section, 'Red failure reason');
+  if (redReasonIndex >= 0) {
+    for (const row of tableRows(section)) {
+      if (!rowHasNonPlaceholderContent(row)) {
+        continue;
+      }
+      const reason = rowCells(row)[redReasonIndex] || '';
+      if (redFailureReasonIsInvalid(reason)) {
+        addFinding(findings, 'FAIL', templateName, `${sectionName} has invalid Red failure reason: "${reason}"`);
+      }
+    }
+  }
+
+  const expectedRedFailureReason = sectionFieldValue(section, 'Expected Red failure reason');
+  if (redFailureReasonIsInvalid(expectedRedFailureReason)) {
+    addFinding(findings, 'FAIL', templateName, `${sectionName} has invalid expected Red failure reason: "${expectedRedFailureReason}"`);
+  }
+}
+
+function addPreCodeGateFindings(findings, templateName, content) {
+  const gate = getSection(content, 'Pre-Code TDD Gate');
+  if (!gate) {
+    return;
+  }
+
+  const ready = sectionFieldValue(gate, 'Ready for production code change');
+  const evidenceType = sectionFieldValue(gate, 'Gate evidence type');
+  const evidence = sectionFieldValue(gate, 'Gate evidence');
+  const redCommand = sectionFieldValue(gate, 'Red command/result');
+  const redReason = sectionFieldValue(gate, 'Expected Red failure reason');
+  const violationStatus = sectionFieldValue(gate, 'TDD violation status');
+
+  if (isUnfilledChoiceField(ready, /^yes\s*\/\s*no\s*\/\s*blocked$/i)) {
+    addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate has no ready-for-code decision');
+  }
+
+  if (isUnfilledChoiceField(evidenceType, /^red\s*\/\s*existing failing test\s*\/\s*non-tdd exception\s*\/\s*blocker$/i)) {
+    addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate has no gate evidence type');
+  }
+  if (!evidence || isPlaceholderCell(evidence)) {
+    addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate has no gate evidence');
+  }
+
+  if (/red/i.test(evidenceType)) {
+    if (!redCommand || isPlaceholderCell(redCommand)) {
+      addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate uses Red but has no Red command/result');
+    }
+    if (!redReason || isPlaceholderCell(redReason)) {
+      addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate uses Red but has no expected Red failure reason');
+    }
+  }
+
+  if (/^yes$/i.test(ready) && /blocker/i.test(evidenceType)) {
+    addFinding(findings, 'FAIL', templateName, 'Pre-Code TDD Gate cannot be ready for production code change when gate evidence type is blocker');
+  }
+
+  if (isUnfilledChoiceField(violationStatus, /^none\s*\/\s*violation recorded\s*\/\s*not applicable$/i)) {
+    addFinding(findings, 'WARN', templateName, 'Pre-Code TDD Gate has no TDD violation status');
+  }
+
+  addInvalidRedReasonFindings(findings, templateName, gate, 'Pre-Code TDD Gate');
+}
+
+function addTddSequenceFindings(findings, templateName, content) {
+  const sequence = getSection(content, 'TDD Sequence Evidence');
+  if (!sequence) {
+    return;
+  }
+
+  const gateResult = sectionFieldValue(sequence, 'Production code change gate result');
+  const evidenceType = sectionFieldValue(sequence, 'Pre-code evidence type');
+  const evidence = sectionFieldValue(sequence, 'Pre-code evidence');
+  const redCommand = sectionFieldValue(sequence, 'Red command/result');
+  const redReason = sectionFieldValue(sequence, 'Expected Red failure reason');
+
+  if (isUnfilledChoiceField(gateResult, /^passed\s*\/\s*blocked\s*\/\s*violation recorded\s*\/\s*not applicable$/i)) {
+    addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence has no production-code gate result');
+  }
+  if (isUnfilledChoiceField(evidenceType, /^red\s*\/\s*existing failing test\s*\/\s*non-tdd exception\s*\/\s*blocker$/i)) {
+    addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence has no pre-code evidence type');
+  }
+  if (!evidence || isPlaceholderCell(evidence)) {
+    addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence has no pre-code evidence');
+  }
+  if (/red/i.test(evidenceType)) {
+    if (!redCommand || isPlaceholderCell(redCommand)) {
+      addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence uses Red but has no Red command/result');
+    }
+    if (!redReason || isPlaceholderCell(redReason)) {
+      addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence uses Red but has no expected Red failure reason');
+    }
+  }
+  if (/^passed$/i.test(gateResult) && /blocker/i.test(evidenceType)) {
+    addFinding(findings, 'FAIL', templateName, 'TDD Sequence Evidence cannot have a passed production-code gate when pre-code evidence type is blocker');
+  }
+
+  addInvalidRedReasonFindings(findings, templateName, sequence, 'TDD Sequence Evidence');
+}
+
 function checkQaTestReport(content) {
   const templateName = 'qa-test-report';
   const findings = [];
@@ -494,6 +658,7 @@ function checkQaTestReport(content) {
     'Conclusion',
     'Scope',
     'TDD Summary',
+    'TDD Sequence Evidence',
     'Tests Run',
     'User Scenario Coverage',
     'Test Data Setup Evidence',
@@ -563,6 +728,8 @@ function checkQaTestReport(content) {
   if (!sectionHasNonPlaceholderTableRow(tddSummary) && !sectionHasNonPlaceholderTableRow(nonTddExceptions)) {
     addFinding(findings, 'FAIL', templateName, 'TDD Summary has no non-placeholder row and no Non-TDD Exceptions are recorded');
   }
+  addInvalidRedReasonFindings(findings, templateName, tddSummary, 'TDD Summary');
+  addTddSequenceFindings(findings, templateName, content);
 
   if (/Overall result:\s*BLOCKED/i.test(content)) {
     const blockers = getSection(content, 'Tests Not Run / Blockers');
@@ -599,6 +766,7 @@ function checkLightweightTestDesign(content) {
     'Context',
     'Input Sources Checked',
     'Requirement Authority / Conflict Gate',
+    'Pre-Code TDD Gate',
     'Test Points',
     'User Scenario Matrix',
     'Test Data Plan',
@@ -606,6 +774,7 @@ function checkLightweightTestDesign(content) {
     'Regression Impact',
     'Coverage Closure',
   ]);
+  addPreCodeGateFindings(findings, templateName, content);
 
   const testPoints = getSection(content, 'Test Points');
   if (!sectionHasNonPlaceholderTableRow(testPoints)) {

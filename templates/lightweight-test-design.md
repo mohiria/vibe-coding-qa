@@ -28,6 +28,19 @@ Use only when the change touches existing behavior, tests, API contracts, data m
 | --- | --- | --- | --- | --- | --- |
 | | Existing tests / code / old Spec / API contract / data model | Active Spec / PRD / issue / user confirmation | extends / amends / supersedes / conflicts | Source or owner | Proceed / BLOCKED |
 
+## Pre-Code TDD Gate
+
+Use before changing production code. If production code was already changed before this gate, record it as a TDD violation or Non-TDD Exception.
+
+- OpenSpec change / task source:
+- Behavior contract source:
+- Ready for production code change: Yes / No / BLOCKED
+- Gate evidence type: Red / existing failing test / non-TDD exception / blocker
+- Gate evidence:
+- Red command/result:
+- Expected Red failure reason:
+- TDD violation status: None / Violation recorded / Not applicable
+
 ## Test Points
 
 List the behavior to prove and the lowest effective layer. `Coverage artifact` may be empty until the test exists and has been executed.
@@ -57,6 +70,7 @@ For API/integration rows, cite the API contract, permission state, lifecycle, te
 ## TDD Candidates
 
 Use for strict Red-Green-Refactor candidates at unit or API/integration layers.
+For statically typed stacks, create the smallest compilable production stub before recording Red. Compile errors, missing method/class/endpoint, import errors, fixture/setup/environment/DB failures, or `NoSuchMethod` are blockers, not Red.
 
 | Test point | Initial failing test | Why it should fail before implementation | Expected Red failure reason | Minimal behavior to pass | Related regression |
 | --- | --- | --- | --- | --- | --- |

@@ -42,6 +42,7 @@ Load only the reference needed for the current task.
 | --- | --- |
 | Establish mandatory rules, quality gates, or anti-fake-test policy | `references/qa-constitution.md` |
 | Extract test points or decide test layers | `references/test-analysis-and-design.md` |
+| Generate project-level agent/OpenSpec orchestration instructions | `references/agent-openspec-orchestration.md` |
 | Generate realistic synthetic / simulated test data | `references/test-data-and-simulation.md` |
 | Choose test framework or runner when project convention is unclear | `references/test-tooling.md` |
 | Generate or review unit tests | `references/unit-testing.md` |
@@ -56,12 +57,13 @@ Load only the reference needed for the current task.
 `references/qa-constitution.md` is the canonical rulebook. Read it first; it governs the points below and must not be weakened. Key non-negotiables:
 
 - Lightweight test design comes before test scripts. Even small changes must record requirement source, representative test point, TDD Red evidence or a documented exception/blocker, and initial regression impact.
-- A Red test is valid only when it fails for the expected-behavior reason; syntax/import/setup/fixture/environment failures are blockers, not Red evidence. Prefer the lowest effective layer (unit -> API/integration -> E2E).
+- A Red test is valid only when it fails for the expected-behavior reason; syntax/import/compile/missing-symbol/setup/fixture/environment failures are blockers, not Red evidence. In statically typed stacks, create the smallest compilable stub first, then capture assertion-level Red. Prefer the lowest effective layer (unit -> API/integration -> E2E).
 - Execute every in-scope executable test point, or explicitly block it; run all new and modified tests. Execution scope combines design and regression coverage, with each item reported as `Design`, `Regression`, or `Both`.
 - Before modifying or deleting an existing test, apply the Requirement Conflict Gate (extends/amends/supersedes/conflicts) and state the authority. Never weaken assertions, drop negative cases, skip tests, or bend expected behavior just to pass.
 - Test data follows the canonical `## Test Data Rules`: realistic synthetic business data when meaning matters, a documented minimal-data exception only for unit-level technical assertions, and "missing ready-made data is not a blocker." Generation techniques are in `references/test-data-and-simulation.md`.
 - Runtime QA validation is availability smoke only; it never counts as Unit/API/E2E business coverage.
 - Cite evidence for every conclusion, and produce or update `qa-test-report` for any QA cycle (or record the exact blocker, alternative evidence, and remaining risk).
+- When a project uses OpenSpec, OpenSpec owns behavior/change artifacts and this skill owns the pre-code TDD gate. `/opsx:apply` must not be treated as permission to write production code directly; each production-code task must pass the QA gate first. See `references/agent-openspec-orchestration.md`.
 
 ## Deliverables
 

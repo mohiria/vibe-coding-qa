@@ -31,10 +31,25 @@ Use only when a requirement decision affected existing behavior or test expectat
 ## TDD Summary
 
 Use for strict TDD candidates. Red evidence must be an expected behavior failure, not setup failure.
+`Red failure reason` must be an assertion-level behavior gap, such as wrong status, missing field, wrong persisted state, or `expected approved got pending`. Invalid Red values include compile error, `NoSuchMethod`, method/class/endpoint not found, import error, fixture/setup/environment/DB failure, `编译缺失`, or `阻塞型`.
 
 | Test point | Source / authority | Red evidence | Red failure reason | Green evidence | Refactor / regression evidence | Coverage artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | | | Command/result/report | Expected behavior gap, not setup failure | Command/result/report | Command/result/report | `path/to/test#name` | RED / GREEN / PASS / BLOCKED |
+
+## TDD Sequence Evidence
+
+Record whether the QA gate happened before production code changed.
+
+- OpenSpec change / task source:
+- Test design artifact:
+- Production code change gate result: Passed / BLOCKED / Violation recorded / Not applicable
+- Pre-code evidence type: Red / existing failing test / non-TDD exception / blocker
+- Pre-code evidence:
+- Red command/result:
+- Expected Red failure reason:
+- Green command/result:
+- TDD violation / exception:
 
 ## Non-TDD Exceptions
 
