@@ -116,7 +116,7 @@ Avoid selectors based on generated classes, DOM depth, animation wrappers, trans
 
 ## Test Data And Isolation
 
-Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. The unit-level minimal-data exception does not apply to E2E tests.
+Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. Derive every value from the requirement state, the workflow persona, and the project's real domain per that procedure. The unit-level minimal-data exception does not apply to E2E tests.
 
 E2E adds these layer-specific requirements:
 

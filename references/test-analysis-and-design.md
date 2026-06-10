@@ -250,13 +250,13 @@ Check:
 - Data ownership and permission boundaries.
 - Seed data requirements.
 
-Define test data strategy following `qa-constitution.md` §Test Data Rules (realism, minimal-data exception, setup order, placeholder blocklist, "missing data is not a blocker"). Generation techniques live in `references/test-data-and-simulation.md`.
+Define test data strategy following `qa-constitution.md` §Test Data Rules (the generate-from-requirement/scenario/project-domain procedure, the realism rubric and business-system language/locale requirement, minimal-data exception, setup order, placeholder blocklist, "missing data is not a blocker"). Generation techniques and where to find the project's domain live in `references/test-data-and-simulation.md`.
 
 For each test point, record:
 
 - Required data state.
 - Data creation method.
-- Business realism basis: which business rule, API contract, lifecycle state, persona, tenant, permission, ownership boundary, product domain, persistence rule, state transition, visible result, or real workflow makes the data plausible. For API/integration and E2E rows this is mandatory; for unit-level pure technical assertions, record the minimal-data exception instead.
+- Business realism basis: which business rule, API contract, lifecycle state, persona, tenant, permission, ownership boundary, product domain, product language/locale, persistence rule, state transition, visible result, or real workflow makes the data plausible. For API/integration and E2E rows this is mandatory; for unit-level pure technical assertions, record the minimal-data exception instead.
 - Isolation key, unique prefix, tenant, or transaction boundary.
 - Cleanup method.
 - Whether data setup is part of the behavior under test or only a precondition.

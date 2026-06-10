@@ -101,6 +101,24 @@ Use this default setup order: existing fixture/factory/builder/helper -> backend
 
 Test data must be realistic synthetic business data when the assertion depends on business meaning. It should look like data a real user, tenant, system process, or business workflow could create in the product domain, with plausible names, dates, amounts, statuses, ownership, permissions, and relationships that do not contradict each other. Unit tests for pure technical boundaries, simple formatters, mappers, or non-business assertions may use minimal synthetic data when the exception is recorded and business realism cannot affect the assertion. API/integration and E2E tests must keep realistic synthetic business data; the unit-level minimal-data exception does not apply to them. Do not use obvious placeholders such as `foo`, `bar`, `test123`, `asdf`, `张三`, `Acme Inc.`, or meaningless lorem text for business-facing records. Never use production data, real personal data, or real secrets.
 
+### Generate From Requirement, Scenario, And Project Domain
+
+Before generating any business-facing test data, derive it from three inputs and keep them coherent. Do not invent values detached from the product. This procedure applies to business-facing data at every layer; the unit-level minimal-data exception above is unchanged.
+
+1. **Requirement**: the active Spec, rule, or contract the test must exercise. Put the entity in the exact state the requirement describes — for a permission-denial test, a persona that genuinely lacks the permission acting on a record actually in the required lifecycle state — not an arbitrary state that merely happens to pass.
+2. **Usage scenario**: the real persona, role, entry point, and workflow the test represents. Values must reflect that scenario; an enterprise renewal, a trial signup, and an admin bulk action produce visibly different data.
+3. **Project domain reality**: read the project's actual schema fields, allowed enum values, existing factories/fixtures, real sample records, primary language, and locale, then pick values from the project's real allowed set. Extend an existing factory or persona rather than inventing a parallel shape.
+
+Business-facing data is realistic only when it meets this rubric:
+
+- Text is written in the business system's primary language and locale: names, addresses, company names, descriptions, and free text use the product's actual user language (a Chinese product uses predominantly Chinese data, an English product English, and so on). Data in the wrong language is not realistic even if otherwise plausible.
+- Identities are domain-plausible for the product's users, not generic placeholders.
+- Amounts, dates, codes, and quantities carry business meaning; they are not round, sequential, or placeholder values chosen for convenience.
+- Relationships, ownership, tenant, permission, and lifecycle dates are mutually consistent and match the requirement state and scenario.
+- Each record is uniquely identifiable through a stable test prefix plus sequence so it can be isolated and cleaned up.
+
+Shallow data that satisfies the wording of a field but not the rubric is not realistic. Beyond the obvious placeholders above, reject convenience values in any language — for an English product `Test User`, `John Doe`/`Jane Doe`, `example.com` addresses, sequential `user1@`/`test@` identities, `Product 1`/`Item 1`, and placeholder integer amounts; for a Chinese product the equivalents `测试用户`/`张三`/`李四`/`测试公司` and the like. Data written in the wrong language for the product (for example English records in a Chinese system) is itself a shallow-data failure. The rubric governs; these lists are illustrative, not exhaustive.
+
 API/integration and E2E test data evidence must explain why the data is business-realistic. For API/integration, cite the API contract, permission state, lifecycle, tenant or ownership boundary, persistence rule, state transition, or business relationship being exercised. For E2E, cite the persona, entry point, workflow, lifecycle state, permission, tenant or ownership context, and visible business result. Generic statements such as "test data ready" or placeholder-looking records are invalid for API/integration and E2E coverage.
 
 ## Coverage Artifact Format

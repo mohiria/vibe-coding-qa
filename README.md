@@ -13,7 +13,7 @@
 - TDD 约束生产代码：修改生产代码前必须有有效 Red、可复用失败测试、非 TDD 例外，或明确 prerequisite blocker。
 - Red 必须是真行为失败：compile error、missing method、missing endpoint、import error、fixture/setup/env/DB 失败都不是 Red。静态类型语言中应先建最小可编译桩，再获得断言级 Red。
 - 分层测试就近覆盖：优先单元测试，其次 API/集成测试，最后 E2E。E2E 覆盖关键用户旅程，不承载所有字段组合。
-- 测试数据必须有业务语义：API/集成和 E2E 测试必须使用模拟真实业务数据，不能用 `foo`、`bar`、`test123` 这类占位数据。
+- 测试数据必须有业务语义：API/集成和 E2E 测试必须结合需求状态、使用场景与项目真实领域（schema、枚举、已有 factory）生成模拟真实业务数据，并使用业务系统的主语言/locale（中文产品用中文数据），不能用 `foo`、`bar`、`test123` 这类占位数据。
 - QA report 收口：测试结束后生成或更新 `qa-test-report.md`，记录 TDD 顺序证据、测试执行、回归范围、测试数据证据、未覆盖风险。
 
 ## 目录结构

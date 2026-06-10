@@ -60,6 +60,7 @@ Use when E2E is in scope. Enumerate user workflows before selecting browser test
 ## Test Data Plan
 
 Plan deterministic setup, isolation, cleanup, and realistic synthetic business data.
+Derive the data per `qa-constitution.md` §Test Data Rules: in `Business realism basis` record the requirement state the data must be in, the scenario/persona it represents, and the concrete project-domain values used (real enum/allowed values and locale), not an abstract phrase.
 For unit-level pure technical assertions only, record a minimal-data exception in `Business realism basis`. API/integration and E2E rows must use realistic synthetic business data.
 For API/integration rows, cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. For E2E rows, cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
 
@@ -127,7 +128,7 @@ Example test data:
 
 | Test point / scenario | Required data state | Business realism basis | Setup method | Isolation strategy | Cleanup method | Data blocker status |
 | --- | --- | --- | --- | --- | --- | --- |
-| Approve renewal discount | Customer account with submitted annual renewal discount request | Mirrors regional manager approval for owned enterprise accounts | API setup | Unique prefix and test tenant | API cleanup | Ready |
+| Approve renewal discount | Discount request in `status=submitted`, 12% off a 24-month renewal, owned by the acting regional manager's enterprise account | Regional manager (`role=regional_sales_manager`, holds `discount:approve`) approves a renewal she owns; account `tier=enterprise`; amount taken from the real renewal-discount range, not a round placeholder | API setup via `discountRequestFactory` | Unique prefix and test tenant | API cleanup | Ready |
 
 Example regression impact:
 

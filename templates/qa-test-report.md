@@ -79,6 +79,7 @@ Use when E2E is in scope. Record workflow coverage, not every field or API varia
 ## Test Data Setup Evidence
 
 Record how required data was created, why it is business-realistic, and how it was isolated or cleaned up.
+Derive the data per `qa-constitution.md` §Test Data Rules: `Business realism evidence` should name the requirement state, the scenario/persona, and the concrete project-domain values used (real enum/allowed values and locale), not an abstract phrase.
 For unit-level pure technical assertions only, record a minimal-data exception in `Business realism evidence`. API/integration and E2E rows must use realistic synthetic business data.
 For API/integration rows, cite the API contract, permission state, lifecycle, tenant/ownership, persistence rule, state transition, or business relationship. For E2E rows, cite the persona, entry point, workflow, lifecycle, permission, tenant/ownership, and visible business result.
 
@@ -157,4 +158,4 @@ Delete this section or replace it with project-specific rows before finalizing t
 
 | Test / scenario | Required data | Business realism evidence | Setup method | Cleanup | Evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| Approve renewal discount | Submitted annual renewal discount for owned enterprise account | Matches regional manager approval workflow and lifecycle state | API setup | API cleanup | setup helper log | READY |
+| Approve renewal discount | Discount request `status=submitted`, 12% off a 24-month enterprise renewal, owned by the acting regional manager | Regional manager (`role=regional_sales_manager`, holds `discount:approve`) approves a renewal she owns; account `tier=enterprise`; amount from the real renewal-discount range; lifecycle `submitted -> approved` | API setup via `discountRequestFactory` | API cleanup | setup helper log | READY |

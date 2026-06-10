@@ -89,7 +89,7 @@ Weak assertions are not enough:
 
 ## Data And Isolation Rules
 
-Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. The unit-level minimal-data exception does not apply to API or integration tests.
+Test data rules and the default setup order are canonical in `qa-constitution.md` §Test Data Rules; generation techniques are in `references/test-data-and-simulation.md`. Derive every value from the requirement state, the acting persona, and the project's real domain (schema, allowed enums, existing factories) per that procedure. The unit-level minimal-data exception does not apply to API or integration tests.
 
 API/integration adds these layer-specific requirements:
 
